@@ -1,0 +1,8 @@
+Angular Forms:
+      <!-- https://angular.io/guide/forms -->
+
+
+TODO:
+
+Add date range fields to customize results shown even further.
+Also, add a limit field to limit results. Will be a part of the header of course.

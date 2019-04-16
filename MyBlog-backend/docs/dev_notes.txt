@@ -1,0 +1,5 @@
+Start the app with:
+node app.js
+
+In browser, go to:
+http://localhost:3000/

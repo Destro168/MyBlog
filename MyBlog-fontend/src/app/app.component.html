@@ -1,0 +1,99 @@
+<div id="main">
+  <h1>Welcome to Donald Abdullah-Robinson's Blog!</h1>
+
+  <div id="header">
+    <!-- Convert into a toggle -->
+    <button class="btn btn-success" (click)="pageMode = 'view'">View Mode</button>
+    <button class="btn btn-success" (click)="pageMode = 'edit'">Edit Mode</button><br /><br />
+    
+    <button class="btn btn-success" (click)="setTabVisibility(1)">Show Recent</button>
+    <button class="btn btn-success" (click)="setTabVisibility(2)">Show All</button>
+  </div>
+
+  <div id="create_post">
+    <h1>Create a New Blog Post:</h1>
+    <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
+      <div class="form-group">
+        <label for="name"></label><br />
+        <textarea cols="100" rows="10" class="form-control" id="content" name="content" [(ngModel)]="formContent"
+          placeholder="Enter Content Here:" required></textarea><br />
+        <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
+      </div>
+    </form>
+  </div>
+  
+  <div id="tab1" *ngIf="tabVisibility['1']">
+
+    <div id="recent_posts_edit" *ngIf="pageMode == 'edit'">
+      <h1>{{getKeys(allPostData2[allYears[0]])[0]}} {{allYears[0]}}'s Blog Posts - Edit Mode</h1>
+      <div *ngFor="let day of getKeys(allPostData2[allYears[0]][getKeys(allPostData2[allYears[0]])[0]]).reverse()">
+        <h1>Day {{day}}:</h1>
+        <div *ngFor="let dayData of getFilteredData(allYears[0], getKeys(allPostData2[allYears[0]])[0], day).reverse()">
+          <p>
+            {{dayData['time']}}
+            <!--
+              TODO, We should bind create a unique id for each text area in dayData and use that as a reference in the put and delete methods.
+              id="generateUniqueId()" 
+            -->
+            <textarea cols="100" rows="1" value="{{dayData['content']}}" [(ngModel)]="dayData['content']"></textarea>
+          </p>
+          <button type="submit" class="btn btn-edit" (click)="doPutEditPost(dayData['content'], dayData['_id'])">Save Changes</button>
+          <button type="submit" class="btn btn-edit" (click)="doDeleteRemovePost(dayData['_id'])">Delete Post</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="recent_posts_view" *ngIf="pageMode == 'view'">
+      <h1>{{getKeys(allPostData2[allYears[0]])[0]}} {{allYears[0]}}'s Blog Posts</h1>
+      <div *ngFor="let day of getKeys(allPostData2[allYears[0]][getKeys(allPostData2[allYears[0]])[0]]).reverse()">
+        <h1>Day {{day}}:</h1>
+        <div *ngFor="let dayData of getFilteredData(allYears[0], getKeys(allPostData2[allYears[0]])[0], day).reverse()">
+          <p>
+            {{dayData['timeAndContent']}}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab2" *ngIf="tabVisibility['2']">
+
+    <div id="all_posts_edit" *ngIf="pageMode == 'edit'">
+      <h1>All Blog Posts - Edit Mode</h1>
+      <div *ngFor="let year of allYears">
+        <div *ngFor="let month of getKeys(allPostData2[year])">
+          <h1>{{month}} {{year}}</h1>
+          <div *ngFor="let day of getKeys(allPostData2[year][month]).reverse()">
+            <h1>Day {{day}}:</h1>
+            <div *ngFor="let dayData of getFilteredData(year, month, day).reverse()">
+                <p>
+                  {{dayData['time']}}
+                  <textarea cols="100" rows="1" value="{{dayData['content']}}"></textarea>
+                </p>
+                <button type="submit" class="btn btn-edit" (click)='doPutEditPost(post["_id"])'>Save Changes</button>
+                <button type="submit" class="btn btn-edit" (click)='deletePost(post["_id"])'>Delete Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="all_posts_view" *ngIf="pageMode == 'view'">
+        <h1>All Blog Posts</h1>
+        <div *ngFor="let year of allYears">
+          <div *ngFor="let month of getKeys(allPostData2[year])">
+            <h1>{{month}} {{year}}</h1>
+            <div *ngFor="let day of getKeys(allPostData2[year][month]).reverse()">
+              <h1>Day {{day}}:</h1>
+              <div *ngFor="let dayData of getFilteredData(year, month, day).reverse()">
+                <p>
+                  {{ dayData['timeAndContent'] }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+</div>
