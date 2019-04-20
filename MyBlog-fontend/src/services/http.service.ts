@@ -46,7 +46,27 @@ export class HttpService {
       'Something bad happened; please try again later.');
   }
 
+  /**
+   * Performs post operation using content object.
+   * @param content Object containing a post to save.
+   */
   doPost(content) {
-    return this.http.post<any>(this.configUrl, content);
+    return this.http.post < any > (this.configUrl, content);
+  }
+
+  /**
+   * Performs put operation using content object.
+   * @param postDataObject Object with keys id (a mongoDB id reference) and postDataObject (content to set key id to)
+   */
+  doPut(id, postObject) {
+    return this.http.put(this.configUrl + '/' + id, postObject);
+  }
+
+  /**
+   * Performs delete operation using content object.
+   * @param content An object containing an id.
+   */
+  doDelete(id) {
+    return this.http.delete(this.configUrl + '/' + id);
   }
 }

@@ -102,10 +102,41 @@ app.route('/api/posts/:category')
 		});
 
 		post.save((err, post) => {
-			err ? res.status(400).send(err) : res.status(200).json({message : "Successfully saved post.", post : post});
+			err ? res.status(400).send(err) : res.status(200).json({
+				message: "Successfully saved post.",
+				post: post
+			});
 		});
 
 		return;
+	})
+
+app.route('/api/posts/:category/:id')
+	.delete(function (req, res) {
+		if (!req.params.id) {
+			res.status(400).send("Bad id.");
+		}
+
+		postModel.findByIdAndDelete(req.params.id, (err) => err ? res.status(400).send(err) : res.status(200).json({
+			message: "Successfully deleted post."
+		}));
+	})
+
+	/**
+	 * Updates a posts fields with sent data.
+	 */
+	.put(function (req, res) {
+		let id = req.params.id;
+		let postObject = req.body.postObject;
+
+		if (!id || !postObject) {
+			res.status(400).send("Bad id or post data object transmitted.");
+			return;
+		}
+
+		postModel.findByIdAndUpdate(id, postObject, (err) => err ? res.status(400).send(err) : res.status(200).json({
+			message: "Successfully updated post."
+		}));
 	})
 
 /*

@@ -31,8 +31,7 @@ export class AppComponent implements OnInit {
 
   pageMode = 'edit';
 
-  constructor(private httpService: HttpService) {
-  }
+  constructor(private httpService: HttpService) {}
 
   ngOnInit() {
     this.doGetPostDataAll();
@@ -100,6 +99,7 @@ export class AppComponent implements OnInit {
       }
 
       obj2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()].push({
+        _id: x[i]['_id'],
         time: this.getFormattedTime(date),
         content: x[i]['content'],
         timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content']
@@ -134,18 +134,53 @@ export class AppComponent implements OnInit {
     return this.allPostData.filter(v => v['month'] === month && v['year'] === year && v['day'] === parseInt(day, 10));
   }
 
-  public doPutEditPost(content, id: number) {
+  public doPutEditPost(content: string, id: number) {
     if (content === '' || !id) {
       console.log('Bad form content:', content, id);
       return;
     }
 
-    console.log(content);
-    console.log(id);
+    this.httpService.doPut(id, {
+        postObject : {
+          content: content
+        }
+      })
+      .subscribe(v => {
+        console.log('Successfully performed the put operation!');
+      });
   }
 
   public doDeleteRemovePost(id: number) {
-    console.log(id);
+    if (!id) {
+      console.log('Bad form content:', id);
+      return;
+    }
+
+    this.httpService.doDelete(id)
+      .subscribe(v => {
+        // We're going to remove the element from our allPostData arrays.
+        for (let i = 0; i < this.allPostData.length; i++) {
+          if (this.allPostData[i]._id === id) {
+            this.allPostData.splice(i, 1);
+            break;
+          }
+        }
+
+        for (const a of Object.keys(this.allPostData2)) {
+          if (a) {
+            for (const b of Object.keys(a)) {
+              if (b) {
+                for (const c of Object.keys(b)) {
+                  if (c['_id'] === id) {
+                    delete this.allPostData2[b][c];
+                    return;
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
   }
 
   public doPostOnSubmit() {
@@ -196,7 +231,7 @@ export class AppComponent implements OnInit {
         console.log(x, this.allPostData);
       });
 
-      return;
+    return;
   }
 
   public doGetPostDataAll() {
