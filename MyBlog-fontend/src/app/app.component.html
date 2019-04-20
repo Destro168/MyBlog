@@ -40,6 +40,7 @@
 
     <!-- Section for viewing most recent posts. -->
     <div id="tab1" *ngIf="tabVisibility['1']">
+
       <h1 class="blog_post_header">{{getKeys(postDataObject[allYears[0]])[0]}} {{allYears[0]}} - Recent</h1>
       <div *ngFor="let day of getReversedKeys(postDataObject[allYears[0]][getKeys(postDataObject[allYears[0]])[0]])">
         <h1 class="day_style">Day {{day}}</h1>
@@ -50,19 +51,18 @@
             <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
 
               <p>
-                {{dayData['timeAndContent']}}
+                {{ getFormattedTimeAndContent(dayData) }}
               </p>
 
             </span>
 
-            <span *ngIf="dayData['displayMode'] == 'edit'" (click)='dayData["displayMode"] = "view"'>
+            <span *ngIf="dayData['displayMode'] == 'edit'">
 
               <p>
                 {{dayData['time']}}
                 <textarea cols="50" rows="3" value="{{dayData['content']}}" [(ngModel)]="dayData['content']"></textarea>
               </p>
-              <button type="submit" class="btn btn-primary"
-                (click)='doPutEditPost(dayData["content"], dayData["_id"]); dayData["displayMode"] = "view"'>Save</button>
+              <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
               <button type="submit" class="btn btn-warning" (click)='dayData["displayMode"] = "view"'>Cancel</button>
               <button type="submit" class="btn btn-danger" (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
 
@@ -82,21 +82,21 @@
             <h1 class="day_style">Day {{day}}</h1>
             <div class="post_container">
               <div class="post" *ngFor="let dayData of getFilteredData(year, month, day)">
-                
+
                 <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
                   <p>
-                    {{ dayData['timeAndContent'] }}
+                    {{ getFormattedTimeAndContent(dayData) }}
                   </p>
                 </span>
 
-                <span *ngIf="dayData['displayMode'] == 'edit'" (click)='dayData["displayMode"] = "view"'>
+                <span *ngIf="dayData['displayMode'] == 'edit'">
 
                   <p>
                     {{dayData['time']}}
-                    <textarea cols="50" rows="3" value="{{dayData['content']}}"></textarea>
+                    <textarea cols="50" rows="3" value="{{dayData['content']}}"
+                      [(ngModel)]="dayData['content']"></textarea>
                   </p>
-                  <button type="submit" class="btn btn-primary"
-                    (click)='doPutEditPost(dayData["content"], dayData["_id"]); dayData["displayMode"] = "view"'>Save</button>
+                  <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
                   <button type="submit" class="btn btn-warning"
                     (click)='dayData["displayMode"] = "view"'>Cancel</button>
                   <button type="submit" class="btn btn-danger"
