@@ -3,12 +3,8 @@ import {
 } from './../services/http.service';
 import {
   Component,
-  OnInit,
-  ChangeDetectorRef
+  OnInit
 } from '@angular/core';
-import {
-  parse
-} from 'querystring';
 
 // Global variable containing all months.
 const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -38,7 +34,7 @@ export class AppComponent implements OnInit {
   };
 
   // Constructor -> Activates service httpService.
-  constructor(private httpService: HttpService, private ref: ChangeDetectorRef) {}
+  constructor(private httpService: HttpService) {}
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
