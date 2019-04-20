@@ -6,9 +6,9 @@ import {
   OnInit
 } from '@angular/core';
 
-const G_MONTHS = ['January', 'February', 'March', 'April',
-  'May', 'June', 'July', 'August', 'September',
-  'October', 'November', 'December'
+// Global variable containing all months.
+const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
 @Component({
@@ -17,43 +17,44 @@ const G_MONTHS = ['January', 'February', 'March', 'April',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  formContent = '';
-  submitted = false;
+  // The current page mode, whether it is 'view' or 'edit'.
+  public pageMode = 'edit';
 
-  allPostData = [];
-  allPostData2 = {};
+  // The text stored in #textareaNewPost
+  public formContent = '';
+
+  // Array of post data. Must remain synchronized with postDataObject. postDataObject depends on this variable.
+  public postDataArray = [];
+
+  // Post data object. Must remain synchronized with postDataObject. Is dependent on postDataArray.
+  public postDataObject = {};
   public allYears = [];
 
-  tabVisibility = {
+  // A variable storing the current visibility of any given tab on the view for this component.
+  public tabVisibility = {
     1: true,
     2: false
   };
 
-  pageMode = 'edit';
-
+  // Constructor -> Activates service httpService.
   constructor(private httpService: HttpService) {}
 
+  /**
+   * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
+   * defined in this component class.
+   */
   ngOnInit() {
     this.doGetPostDataAll();
   }
 
-  private setTabVisibility(tabArg) {
-    let tabCount = Object.keys(this.tabVisibility).length;
+  /**********************************************************
+   * Helper functions.
+   **********************************************************/
 
-    while (tabCount > 0) {
-      this.tabVisibility[tabCount] = false;
-      tabCount--;
-    }
-
-    this.tabVisibility[tabArg] = true;
-  }
-
-  private get30DaysAgo() {
-    const x = new Date();
-    x.setTime(x.getTime() - 2592000000);
-    return x;
-  }
-
+   /**
+    * Returns a date object formatted as hours and minutes wtih padded 0 if necessary.
+    * @param date A date object.
+    */
   private getFormattedTime(date) {
     let hours = date.getHours().toString();
     let minutes = date.getMinutes().toString();
@@ -69,14 +70,35 @@ export class AppComponent implements OnInit {
     return hours + ':' + minutes;
   }
 
+  /**
+   * Returns the keys of an object. Primarily used on HTML page because Angular throughs error
+   *  when Object.keys() is called directly in view layer.
+   * @param obj Any random object.
+   */
+  private getKeys = (obj) => (obj) ? Object.keys(obj) : [];
+
+  /**
+   * Same as getKeys, but returns keys reversed.
+   */
+  private getReversedKeys = (obj) => (obj) ? Object.keys(obj).reverse() : [];
+
+  /**********************************************************
+   * Functions that manage post data,the content used
+   *  in the app component view.
+   **********************************************************/
+
+  /**
+   * This function updates the postDataArray variable with the data in arg x.
+   * @param x An array of data retrieved from the backend that is converted into a usable array of data.
+   * Note: x is Usually acquired from a 'get' call in the restful function section.
+   */
   private updatePostData(x) {
-    const obj1 = [];
-    const obj2 = {};
+    const tempPostDataArray = [];
 
     for (let i = 0; i < x.length; i++) {
       const date = new Date(x[i].date);
 
-      obj1.push({
+      tempPostDataArray.push({
         _id: x[i]['_id'],
         year: date.getFullYear(),
         month: G_MONTHS[date.getMonth()],
@@ -85,33 +107,61 @@ export class AppComponent implements OnInit {
         content: x[i]['content'],
         timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content']
       });
-
-      if (!obj2[date.getFullYear()]) {
-        obj2[date.getFullYear()] = {};
-      }
-
-      if (!obj2[date.getFullYear()][G_MONTHS[date.getMonth()]]) {
-        obj2[date.getFullYear()][G_MONTHS[date.getMonth()]] = {};
-      }
-
-      if (!obj2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()]) {
-        obj2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()] = [];
-      }
-
-      obj2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()].push({
-        _id: x[i]['_id'],
-        time: this.getFormattedTime(date),
-        content: x[i]['content'],
-        timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content']
-      });
     }
 
-    this.allPostData = obj1;
-    this.allPostData2 = obj2;
+    this.postDataArray = tempPostDataArray;
+    this.updatePostDataObject();
   }
 
-  private getKeys(obj) {
-    return Object.keys(obj);
+  /**
+   * Function that sets postDataObject to values in postDataArray.
+   * Unless a custom operation modifiers postDataArray directly,
+   * this must be called after postDataArray is modified to keep the
+   * two variables synchronized.
+   */
+  private updatePostDataObject() {
+    const x = this.postDataObject;
+    const y = this.postDataArray;
+
+    for (let i = 0; i < y.length; i++) {
+      if (!x[y[i].year]) {
+        x[y[i].year] = {};
+      }
+
+      if (!x[y[i].year][y[i].month]) {
+        x[y[i].year][y[i].month] = {};
+      }
+
+      if (!x[y[i].year][y[i].month][y[i].day]) {
+        x[y[i].year][y[i].month][y[i].day] = [];
+      }
+
+      x[y[i].year][y[i].month][y[i].day].push({
+        _id: y[i]['_id'],
+        time: y[i]['time'],
+        content: y[i]['content'],
+        timeAndContent: y[i]['timeAndContent']
+      });
+    }
+  }
+
+  /**********************************************************
+   * Functions that handle the display of the component.
+   **********************************************************/
+
+  /**
+   * This function sets a tab visible or invisible.
+   * @param tabArg A number that dictates which tab to make visible.
+   */
+  private setTabVisibility(tabArg) {
+    let tabCount = Object.keys(this.tabVisibility).length;
+
+    while (tabCount > 0) {
+      this.tabVisibility[tabCount] = false;
+      tabCount--;
+    }
+
+    this.tabVisibility[tabArg] = true;
   }
 
   private getAllYears(formattedPostData) {
@@ -131,9 +181,18 @@ export class AppComponent implements OnInit {
   }
 
   public getFilteredData(year, month, day) {
-    return this.allPostData.filter(v => v['month'] === month && v['year'] === year && v['day'] === parseInt(day, 10));
+    return this.postDataArray.filter(v => v['month'] === month && v['year'] === year && v['day'] === parseInt(day, 10)).reverse();
   }
 
+  /**********************************************************
+   * Functions that access RESTFUL API endpoints.
+   **********************************************************/
+
+  /**
+   * Perform a PUT operation to edit the content of a post.
+   * @param content Some string of text.
+   * @param id A mongoDB id that references a record.
+   */
   public doPutEditPost(content: string, id: number) {
     if (content === '' || !id) {
       console.log('Bad form content:', content, id);
@@ -141,7 +200,7 @@ export class AppComponent implements OnInit {
     }
 
     this.httpService.doPut(id, {
-        postObject : {
+        postObject: {
           content: content
         }
       })
@@ -150,6 +209,10 @@ export class AppComponent implements OnInit {
       });
   }
 
+  /**
+   * Perform a DELETE operation to delete a post.
+   * @param id A mongoDB id that references a record.
+   */
   public doDeleteRemovePost(id: number) {
     if (!id) {
       console.log('Bad form content:', id);
@@ -159,37 +222,26 @@ export class AppComponent implements OnInit {
     this.httpService.doDelete(id)
       .subscribe(v => {
         // We're going to remove the element from our allPostData arrays.
-        for (let i = 0; i < this.allPostData.length; i++) {
-          if (this.allPostData[i]._id === id) {
-            this.allPostData.splice(i, 1);
+        for (let i = 0; i < this.postDataArray.length; i++) {
+          if (this.postDataArray[i]._id === id) {
+            this.postDataArray.splice(i, 1);
             break;
           }
         }
 
-        for (const a of Object.keys(this.allPostData2)) {
-          if (a) {
-            for (const b of Object.keys(a)) {
-              if (b) {
-                for (const c of Object.keys(b)) {
-                  if (c['_id'] === id) {
-                    delete this.allPostData2[b][c];
-                    return;
-                  }
-                }
-              }
-            }
-          }
-        }
+        // Update post data object to match new postDataArray.
+        this.updatePostDataObject();
       });
   }
 
+  /**
+   * Perform a POST operation to submit a new post.
+   */
   public doPostOnSubmit() {
     if (this.formContent === '') {
       console.log('Bad form content');
       return;
     }
-
-    this.submitted = true;
 
     this.httpService.doPost({
         content: this.formContent
@@ -198,7 +250,7 @@ export class AppComponent implements OnInit {
         const x = v.post;
         const date = new Date(x['created_on']);
 
-        this.allPostData.push({
+        this.postDataArray.push({
           _id: x['_id'],
           year: date.getFullYear(),
           month: G_MONTHS[date.getMonth()],
@@ -208,32 +260,18 @@ export class AppComponent implements OnInit {
           timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x['content']
         });
 
-        if (!this.allPostData2[date.getFullYear()]) {
-          this.allPostData2[date.getFullYear()] = {};
-        }
+        // Synchronize post data object with post data array.
+        this.updatePostDataObject();
 
-        if (!this.allPostData2[date.getFullYear()][G_MONTHS[date.getMonth()]]) {
-          this.allPostData2[date.getFullYear()][G_MONTHS[date.getMonth()]] = {};
-        }
-
-        if (!this.allPostData2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()]) {
-          this.allPostData2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()] = [];
-        }
-
-        this.allPostData2[date.getFullYear()][G_MONTHS[date.getMonth()]][date.getDate()].push({
-          time: this.getFormattedTime(date),
-          content: x['content'],
-          timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x['content']
-        });
-
-        this.allYears = this.getAllYears(this.allPostData);
-
-        console.log(x, this.allPostData);
+        this.allYears = this.getAllYears(this.postDataArray);
       });
 
     return;
   }
 
+  /**
+   * Perform a get operation to retrieve all post data.
+   */
   public doGetPostDataAll() {
     this.httpService.getPostsAll()
       .subscribe((data: []) => {
@@ -246,20 +284,18 @@ export class AppComponent implements OnInit {
         }));
 
         this.updatePostData(temp);
-        this.allYears = this.getAllYears(this.allPostData);
-
-        /*
-        console.log('Test 1:' + this.allYears);
-        console.log('Test 2:' + JSON.stringify(this.filterYearOfData(this.allPostData, 2019)));
-        console.log('Test 3:' + JSON.stringify(this.getAllMonths(this.filterYearOfData(this.allPostData, 2019))));
-        console.log('Test 4:' + JSON.stringify(this.filterMonthOfData(this.filterYearOfData(this.allPostData, 2019), 'April')));
-        */
+        this.allYears = this.getAllYears(this.postDataArray);
       });
   }
 
+  /**
+   * Perform a get operation to get all posts within the last 30 days.
+   */
   public doGetPostData30Days() {
+    const x = new Date();
+
     this.httpService.getPostsLast30Days({
-        date_start: this.get30DaysAgo(),
+        date_start: x.setTime(x.getTime() - 2592000000),
         date_end: new Date()
       })
       .subscribe((data: []) => {
@@ -271,8 +307,8 @@ export class AppComponent implements OnInit {
           date: v['created_on']
         }));
 
-        this.allPostData = this.getAllYears(temp);
-        this.allYears = this.getAllYears(this.allPostData);
+        this.postDataArray = this.getAllYears(temp);
+        this.allYears = this.getAllYears(this.postDataArray);
       });
   }
 }

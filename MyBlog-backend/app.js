@@ -1,5 +1,6 @@
 'use strict';
 
+// Store middleware into vars for initialization. Then, initialize them all.
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -112,6 +113,8 @@ app.route('/api/posts/:category')
 	})
 
 app.route('/api/posts/:category/:id')
+	 // Delete some content by using it's id.
+	 // (TODO: Make it so that no category is necessary. Honestly, probably category should not be passed via the url...)
 	.delete(function (req, res) {
 		if (!req.params.id) {
 			res.status(400).send("Bad id.");
@@ -138,26 +141,5 @@ app.route('/api/posts/:category/:id')
 			message: "Successfully updated post."
 		}));
 	})
-
-/*
-app.get('/post/:id', (req, res) => {
-	
-})
-
-// Create a new post.
-app.post('/post', (req, res) => {
-	res.send('Service is alive. Hello World!')
-})
-
-// Update a post's data.
-app.put('/post/:id', (req, res) => {
-	res.send('Service is alive. Hello World!')
-})
-
-// Delete a post.
-app.delete('/post/:id', (req, res) => {
-	res.send('Service is alive. Hello World!')
-})
-*/
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
