@@ -3,8 +3,12 @@ import {
 } from './../services/http.service';
 import {
   Component,
-  OnInit
+  OnInit,
+  ChangeDetectorRef
 } from '@angular/core';
+import {
+  parse
+} from 'querystring';
 
 // Global variable containing all months.
 const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -34,7 +38,7 @@ export class AppComponent implements OnInit {
   };
 
   // Constructor -> Activates service httpService.
-  constructor(private httpService: HttpService) {}
+  constructor(private httpService: HttpService, private ref: ChangeDetectorRef) {}
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
@@ -53,7 +57,7 @@ export class AppComponent implements OnInit {
    * @param date A date object.
    * @returns Returns a date object formatted as hours and minutes wtih padded 0 if necessary.
    */
-  private getFormattedTime(date): string {
+  public getFormattedTime(date): string {
 
     // Sub-helper function to return a formatted unit of time.
     const getFormattedTimeUnit = (timeUnit) => {
@@ -77,13 +81,15 @@ export class AppComponent implements OnInit {
    *  when Object.keys() is called directly in view layer.
    * @param obj Any object.
    */
-  private getKeys = (obj) => (obj) ? Object.keys(obj) : [];
+  public getKeys = (obj) => (obj) ? Object.keys(obj) : [];
 
   /**
    * Same as getKeys, but returns keys reversed.
    * @param obj Any object.
    */
-  private getReversedKeys = (obj) => (obj) ? Object.keys(obj).reverse() : [];
+  public getReversedKeys = (obj) => (obj) ? Object.keys(obj).reverse() : [];
+
+  public getFormattedTimeAndContent = (dayData) => '[' + this.getFormattedTime(dayData['date']) + ']: ' + dayData['content'];
 
   /**********************************************************
    * Functions that manage post data,the content used
@@ -103,18 +109,15 @@ export class AppComponent implements OnInit {
 
       tempPostDataArray.push({
         _id: x[i]['_id'],
-        year: date.getFullYear(),
-        month: G_MONTHS[date.getMonth()],
-        day: date.getDate(),
+        date: date,
         time: this.getFormattedTime(date),
         content: x[i]['content'],
-        timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content'],
         displayMode: 'view'
       });
     }
 
     this.postDataArray = tempPostDataArray;
-    this.updatePostDataObject();
+    this.syncPostDataObject();
   }
 
   /**
@@ -123,31 +126,37 @@ export class AppComponent implements OnInit {
    * this must be called after postDataArray is modified to keep the
    * two variables synchronized.
    */
-  private updatePostDataObject() {
-    const x = this.postDataObject;
+  private syncPostDataObject() {
+    const x = {};
     const y = this.postDataArray;
+    let year, month, day;
 
     for (let i = 0; i < y.length; i++) {
-      if (!x[y[i].year]) {
-        x[y[i].year] = {};
+      year = y[i].date.getFullYear();
+      month = G_MONTHS[y[i].date.getMonth()];
+      day = y[i].date.getDate();
+
+      if (!x[year]) {
+        x[year] = {};
       }
 
-      if (!x[y[i].year][y[i].month]) {
-        x[y[i].year][y[i].month] = {};
+      if (!x[year][month]) {
+        x[year][month] = {};
       }
 
-      if (!x[y[i].year][y[i].month][y[i].day]) {
-        x[y[i].year][y[i].month][y[i].day] = [];
+      if (!x[year][month][day]) {
+        x[year][month][day] = [];
       }
 
-      x[y[i].year][y[i].month][y[i].day].push({
+      x[year][month][day].push({
         _id: y[i]['_id'],
         time: y[i]['time'],
         content: y[i]['content'],
-        timeAndContent: y[i]['timeAndContent'],
         displayMode: y[i]['displayMode']
       });
     }
+
+    this.postDataObject = x;
   }
 
   /**********************************************************
@@ -173,8 +182,8 @@ export class AppComponent implements OnInit {
     const x = [];
 
     formattedPostData.forEach(v => {
-      if (x.indexOf(v['year']) === -1) {
-        x.push(v['year']);
+      if (x.indexOf(v.date.getFullYear()) === -1) {
+        x.push(v.date.getFullYear());
       }
     });
 
@@ -186,7 +195,11 @@ export class AppComponent implements OnInit {
   }
 
   public getFilteredData(year, month, day) {
-    return this.postDataArray.filter(v => v['month'] === month && v['year'] === year && v['day'] === parseInt(day, 10)).reverse();
+    return this.postDataArray.filter(v =>
+        G_MONTHS[v.date.getMonth()] === month && v.date.getFullYear() === year && v.date.getDate() === parseInt(day, 10)
+      )
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .reverse();
   }
 
   public setAllPostsEdit = () => {
@@ -195,6 +208,12 @@ export class AppComponent implements OnInit {
   public setAllPostsView = () => {
     this.postDataArray.forEach(v => v['displayMode'] = 'view');
   }
+
+  public performSave(dayData) {
+    this.doPutEditPost(dayData['content'], dayData['_id']);
+    dayData['displayMode'] = 'view';
+  }
+
 
   /**********************************************************
    * Functions that access RESTFUL API endpoints.
@@ -217,6 +236,8 @@ export class AppComponent implements OnInit {
         }
       })
       .subscribe(v => {
+        // Don't need to do anything special since content is data-bind. Just log success.
+        this.syncPostDataObject();
         console.log('Successfully performed the put operation!');
       });
   }
@@ -242,7 +263,7 @@ export class AppComponent implements OnInit {
         }
 
         // Update post data object to match new postDataArray.
-        this.updatePostDataObject();
+        this.syncPostDataObject();
       });
   }
 
@@ -264,20 +285,16 @@ export class AppComponent implements OnInit {
 
         this.postDataArray.push({
           _id: x['_id'],
-          year: date.getFullYear(),
-          month: G_MONTHS[date.getMonth()],
-          day: date.getDate(),
+          date: date,
           time: this.getFormattedTime(date),
           content: x['content'],
-          timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x['content'],
           displayMode: 'view'
         });
 
         // Synchronize post data object with post data array.
-        this.updatePostDataObject();
+        this.syncPostDataObject();
 
         this.allYears = this.getAllYears(this.postDataArray);
-
         this.formContent = '';
       });
 
@@ -322,7 +339,7 @@ export class AppComponent implements OnInit {
           date: v['created_on']
         }));
 
-        this.postDataArray = this.getAllYears(temp);
+        this.updatePostData(temp);
         this.allYears = this.getAllYears(this.postDataArray);
       });
   }
