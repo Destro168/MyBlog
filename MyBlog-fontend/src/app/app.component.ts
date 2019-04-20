@@ -17,9 +17,6 @@ const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  // The current page mode, whether it is 'view' or 'edit'.
-  public pageMode = 'edit';
-
   // The text stored in #textareaNewPost
   public formContent = '';
 
@@ -51,34 +48,40 @@ export class AppComponent implements OnInit {
    * Helper functions.
    **********************************************************/
 
-   /**
-    * Returns a date object formatted as hours and minutes wtih padded 0 if necessary.
-    * @param date A date object.
-    */
-  private getFormattedTime(date) {
-    let hours = date.getHours().toString();
-    let minutes = date.getMinutes().toString();
+  /**
+   * A function that returns formatted time.
+   * @param date A date object.
+   * @returns Returns a date object formatted as hours and minutes wtih padded 0 if necessary.
+   */
+  private getFormattedTime(date): string {
 
-    if (hours.length === 1) {
-      hours = '0'.concat(hours);
-    }
+    // Sub-helper function to return a formatted unit of time.
+    const getFormattedTimeUnit = (timeUnit) => {
+      let x = timeUnit.toString();
 
-    if (minutes.length === 1) {
-      minutes = '0'.concat(minutes);
-    }
+      if (x.length === 1) {
+        x = '0'.concat(x);
+      }
 
-    return hours + ':' + minutes;
+      return x;
+    };
+
+    // Return a string formed of formatted units of time.
+    return getFormattedTimeUnit(date.getHours()) + ':' +
+      getFormattedTimeUnit(date.getMinutes()) + ':' +
+      getFormattedTimeUnit(date.getSeconds());
   }
 
   /**
    * Returns the keys of an object. Primarily used on HTML page because Angular throughs error
    *  when Object.keys() is called directly in view layer.
-   * @param obj Any random object.
+   * @param obj Any object.
    */
   private getKeys = (obj) => (obj) ? Object.keys(obj) : [];
 
   /**
    * Same as getKeys, but returns keys reversed.
+   * @param obj Any object.
    */
   private getReversedKeys = (obj) => (obj) ? Object.keys(obj).reverse() : [];
 
@@ -105,7 +108,8 @@ export class AppComponent implements OnInit {
         day: date.getDate(),
         time: this.getFormattedTime(date),
         content: x[i]['content'],
-        timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content']
+        timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x[i]['content'],
+        displayMode: 'view'
       });
     }
 
@@ -140,7 +144,8 @@ export class AppComponent implements OnInit {
         _id: y[i]['_id'],
         time: y[i]['time'],
         content: y[i]['content'],
-        timeAndContent: y[i]['timeAndContent']
+        timeAndContent: y[i]['timeAndContent'],
+        displayMode: y[i]['displayMode']
       });
     }
   }
@@ -182,6 +187,13 @@ export class AppComponent implements OnInit {
 
   public getFilteredData(year, month, day) {
     return this.postDataArray.filter(v => v['month'] === month && v['year'] === year && v['day'] === parseInt(day, 10)).reverse();
+  }
+
+  public setAllPostsEdit = () => {
+    this.postDataArray.forEach(v => v['displayMode'] = 'edit');
+  }
+  public setAllPostsView = () => {
+    this.postDataArray.forEach(v => v['displayMode'] = 'view');
   }
 
   /**********************************************************
@@ -257,13 +269,16 @@ export class AppComponent implements OnInit {
           day: date.getDate(),
           time: this.getFormattedTime(date),
           content: x['content'],
-          timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x['content']
+          timeAndContent: '[' + this.getFormattedTime(date) + ']: ' + x['content'],
+          displayMode: 'view'
         });
 
         // Synchronize post data object with post data array.
         this.updatePostDataObject();
 
         this.allYears = this.getAllYears(this.postDataArray);
+
+        this.formContent = '';
       });
 
     return;
