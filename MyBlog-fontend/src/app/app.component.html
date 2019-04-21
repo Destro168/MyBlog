@@ -105,8 +105,9 @@
         </ul>
       </nav>
 
+      <!-- Search Field -->
+      <input type="text" [(ngModel)]="filterSettings.searchField" placeholder="Search Here" (ngModelChange)="textChange()">
     </div>
-
 
     <div *ngFor="let result of resultsArr[filterSettings.page_index]">
       <!-- Wrap each post into a card. -->

@@ -35,7 +35,8 @@ export class AppComponent implements OnInit {
     date_end_str: getUserStrFromDate(new Date(this.getSuperFuture())),
     resultLimit: 5,
     page_index: 0,
-    category: this.G_FILTER_SETTING_ALL
+    category: this.G_FILTER_SETTING_ALL,
+    searchField: ''
   };
 
   public filteredPostDataObjectSize = 0;
@@ -147,7 +148,6 @@ export class AppComponent implements OnInit {
     return new Date(dateData[2], (dateData[0] - 1), dateData[1], dateData[3], dateData[4], dateData[5]);
   }
 
-
   public getFormattedDay(day: string) {
     switch (parseInt(day, 10)) {
       case 1:
@@ -179,6 +179,10 @@ export class AppComponent implements OnInit {
    * Functions that manage post data, the content used
    *  in the app component view.
    **********************************************************/
+
+   public textChange() {
+     this.updateResultsArr();
+   }
 
   /**
    * Function that sets postDataObject to values in postDataArray.
@@ -314,12 +318,20 @@ export class AppComponent implements OnInit {
   }
 
   public getFilteredData(year, month, day) {
-    return this.postDataArray.filter(v =>
-        G_MONTHS[v.date.getMonth()] === month &&
+    let matchLength;
+
+    console.log(this.filterSettings.searchField);
+
+    return this.postDataArray.filter(v => {
+      matchLength = v.content.toLocaleLowerCase().match(this.filterSettings.searchField.toLocaleLowerCase());
+      (matchLength) ? matchLength = matchLength.length : matchLength = 0;
+
+      return G_MONTHS[v.date.getMonth()] === month &&
         v.date.getFullYear() === year &&
         v.date.getDate() === parseInt(day, 10) &&
-        (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category)
-      )
+        (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category) &&
+        (this.filterSettings.searchField === '' || matchLength > 0);
+      })
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .reverse();
   }
