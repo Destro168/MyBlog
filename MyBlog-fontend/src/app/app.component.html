@@ -21,82 +21,50 @@
   <hr>
 
   <!-- Filter options section. -->
-  <div id="filter">
-    <h1>Filter Options
-      <button class="btn btn-primary" (click)="setTabVisibility(1)">Recent</button>
-      <button class="btn btn-primary" (click)="setTabVisibility(2)">All</button> |
-      View Mode
-      <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit All</button>
-      <button class="btn btn-primary" (click)="setAllPostsView()">View All</button>
-    </h1>
+  <div id="filter_section">
+    <h1>Filter Options:</h1>
+    <h3>Date Range:
+      <input type="text" [(ngModel)]="filterSettings.date_start_str">
+      <input type="text" [(ngModel)]="filterSettings.date_end_str"></h3>
+    <button class="btn btn-primary" (click)="syncFilterDataObject()">Filter</button>
+    <br />
+  </div>
+
+
+  <hr>
+  <div id="filter_section">
+    <h1>Mass Operations</h1>
+    <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit All</button>
+    <button class="btn btn-primary" (click)="setAllPostsView()">View All</button>
   </div>
   <hr>
 
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
 
-    <!-- Section for viewing most recent posts. -->
-    <div id="tab1" *ngIf="tabVisibility['1']">
-
-      <h1 class="bg-info">{{getKeys(postDataObject[allYears[0]])[0]}} {{allYears[0]}} - Recent</h1>
-      <div *ngFor="let day of getReversedKeys(postDataObject[allYears[0]][getKeys(postDataObject[allYears[0]])[0]])">
-        <h1 class="day_style">Day {{day}}</h1>
-
-        <div *ngFor="let dayData of getFilteredData(allYears[0], getKeys(postDataObject[allYears[0]])[0], day)">
-
-          <div class="card">
-            <div class="card-body">
-
-              <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
-                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in {{ getFormattedCategory(dayData['category']) }}</h5>
-                  <p class="card-text">{{ dayData['content'] }}</p>
-              </span>
-
-              <span *ngIf="dayData['displayMode'] == 'edit'">
-
-                <p>
-                  {{dayData['time']}}
-                  <textarea cols="50" rows="3" value="{{dayData['content']}}"
-                    [(ngModel)]="dayData['content']"></textarea>
-                </p>
-                <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
-                <button type="submit" class="btn btn-warning" (click)='dayData["displayMode"] = "view"'>Cancel</button>
-                <button type="submit" class="btn btn-danger"
-                  (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
-
-              </span>
-
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-
     <!-- Section for viewing all posts. -->
-    <div id="tab2" *ngIf="tabVisibility['2']">
-      <div *ngFor="let year of allYears">
-        <div *ngFor="let month of getKeys(postDataObject[year])">
-          <h1 class="bg-info">{{month}} {{year}} - All</h1>
-          <div *ngFor="let day of getReversedKeys(postDataObject[year][month])">
-            <h1 class="day_style">Day {{day}}</h1>
-            <div class="post_container">
-              <div class="post" *ngFor="let dayData of getFilteredData(year, month, day)">
+    <div *ngFor="let year of allYears">
+      <div *ngFor="let month of getKeys(filteredPostDataObject[year])">
+        <div *ngFor="let day of getReversedKeys(filteredPostDataObject[year][month])">
+          <h1>{{month}} {{getFormattedDay(day)}}, {{year}}</h1>
+          <div *ngFor="let dayData of getFilteredData(year, month, day)">
+
+            <div class="card">
+              <div class="card-body">
 
                 <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
-                  <p>
-                    {{ getFormattedTimeAndContent(dayData) }}
-                  </p>
+                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
+                    {{ getFormattedCategory(dayData['category']) }}</h5>
+                  <p class="card-text">{{ dayData['content'] }}</p>
                 </span>
 
                 <span *ngIf="dayData['displayMode'] == 'edit'">
 
-                  <p>
-                    {{dayData['time']}}
-                    <textarea cols="50" rows="3" value="{{dayData['content']}}"
-                      [(ngModel)]="dayData['content']"></textarea>
-                  </p>
+                    <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
+                      {{ getFormattedCategory(dayData['category']) }}</h5>
+                    <textarea class="post_edit_textarea" value="{{dayData['content']}}"
+                      [(ngModel)]="dayData['content']"></textarea><br />
+
                   <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
                   <button type="submit" class="btn btn-warning"
                     (click)='dayData["displayMode"] = "view"'>Cancel</button>
@@ -104,8 +72,10 @@
                     (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
 
                 </span>
+
               </div>
             </div>
+
           </div>
         </div>
       </div>

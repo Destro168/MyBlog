@@ -11,12 +11,22 @@ const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+const getUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear();
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  // Constructor -> Activates service httpService.
+  constructor(private httpService: HttpService) {}
+
+  public filterSettings = {
+    date_start_str: getUserStrFromDate(new Date(this.getOneDayAgo())),
+    date_end_str: getUserStrFromDate(new Date(this.getSuperFuture()))
+  };
+
   // The text stored in #textareaNewPost
   public formContent = '';
 
@@ -24,7 +34,7 @@ export class AppComponent implements OnInit {
   public postDataArray = [];
 
   // Post data object. Must remain synchronized with postDataObject. Is dependent on postDataArray.
-  public postDataObject = {};
+  public filteredPostDataObject = {};
   public allYears = [];
 
   // A variable storing the current visibility of any given tab on the view for this component.
@@ -33,8 +43,6 @@ export class AppComponent implements OnInit {
     2: false
   };
 
-  // Constructor -> Activates service httpService.
-  constructor(private httpService: HttpService) {}
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
@@ -98,6 +106,38 @@ export class AppComponent implements OnInit {
     return str.substring(0, 1).toUpperCase() + str.substring(1, str.length);
   }
 
+  public getOneDayAgo() {
+    const x = new Date();
+    return x.setTime(x.getTime() - 86400000);
+  }
+
+  public get30DaysAgo() {
+    const x = new Date();
+    return x.setTime(x.getTime() - 2592000000);
+  }
+
+  public getSuperFuture() {
+    return new Date(9999, 11, 31);
+  }
+
+  public getDateFromUserStr = (date_str) => {
+    const dateData = date_str.split('/').map(v => parseInt(v, 10));
+    return new Date(dateData[2], (dateData[0] - 1), dateData[1]);
+  }
+
+  public getFormattedDay(day: number) {
+    switch (day) {
+      case 1:
+        return day.toString().concat('st');
+      case 2:
+        return day.toString().concat('nd');
+      case 3:
+        return day.toString().concat('rd');
+      default:
+        return day.toString().concat('th');
+    }
+  }
+
   /**********************************************************
    * Functions that manage post data,the content used
    *  in the app component view.
@@ -125,7 +165,7 @@ export class AppComponent implements OnInit {
     }
 
     this.postDataArray = tempPostDataArray;
-    this.syncPostDataObject();
+    this.syncFilterDataObject();
   }
 
   /**
@@ -134,37 +174,44 @@ export class AppComponent implements OnInit {
    * this must be called after postDataArray is modified to keep the
    * two variables synchronized.
    */
-  private syncPostDataObject() {
+  private syncFilterDataObject() {
     const x = {};
     const y = this.postDataArray;
-    let year, month, day;
+    let date, year, month, day;
+
+    const filterStartDate = this.getDateFromUserStr(this.filterSettings.date_start_str).getTime();
+    const filterEndDate = this.getDateFromUserStr(this.filterSettings.date_end_str).getTime();
 
     for (let i = 0; i < y.length; i++) {
-      year = y[i].date.getFullYear();
-      month = G_MONTHS[y[i].date.getMonth()];
-      day = y[i].date.getDate();
+      date = y[i].date;
 
-      if (!x[year]) {
-        x[year] = {};
+      if (date.getTime() >= filterStartDate && date.getTime() <= filterEndDate) {
+        year = date.getFullYear();
+        month = G_MONTHS[date.getMonth()];
+        day = date.getDate();
+
+        if (!x[year]) {
+          x[year] = {};
+        }
+
+        if (!x[year][month]) {
+          x[year][month] = {};
+        }
+
+        if (!x[year][month][day]) {
+          x[year][month][day] = [];
+        }
+
+        x[year][month][day].push({
+          _id: y[i]['_id'],
+          time: y[i]['time'],
+          content: y[i]['content'],
+          displayMode: y[i]['displayMode']
+        });
       }
-
-      if (!x[year][month]) {
-        x[year][month] = {};
-      }
-
-      if (!x[year][month][day]) {
-        x[year][month][day] = [];
-      }
-
-      x[year][month][day].push({
-        _id: y[i]['_id'],
-        time: y[i]['time'],
-        content: y[i]['content'],
-        displayMode: y[i]['displayMode']
-      });
     }
 
-    this.postDataObject = x;
+    this.filteredPostDataObject = x;
   }
 
   /**********************************************************
@@ -222,7 +269,6 @@ export class AppComponent implements OnInit {
     dayData['displayMode'] = 'view';
   }
 
-
   /**********************************************************
    * Functions that access RESTFUL API endpoints.
    **********************************************************/
@@ -245,7 +291,7 @@ export class AppComponent implements OnInit {
       })
       .subscribe(v => {
         // Don't need to do anything special since content is data-bind. Just log success.
-        this.syncPostDataObject();
+        this.syncFilterDataObject();
         console.log('Successfully performed the put operation!');
       });
   }
@@ -271,7 +317,7 @@ export class AppComponent implements OnInit {
         }
 
         // Update post data object to match new postDataArray.
-        this.syncPostDataObject();
+        this.syncFilterDataObject();
       });
   }
 
@@ -294,13 +340,13 @@ export class AppComponent implements OnInit {
         this.postDataArray.push({
           _id: x['_id'],
           date: date,
-          time: this.getFormattedTime(date),
+          category: x['category'],
           content: x['content'],
           displayMode: 'view'
         });
 
         // Synchronize post data object with post data array.
-        this.syncPostDataObject();
+        this.syncFilterDataObject();
 
         this.allYears = this.getAllYears(this.postDataArray);
         this.formContent = '';
@@ -333,10 +379,8 @@ export class AppComponent implements OnInit {
    * Perform a get operation to get all posts within the last 30 days.
    */
   public doGetPostData30Days() {
-    const x = new Date();
-
     this.httpService.getPostsLast30Days({
-        date_start: x.setTime(x.getTime() - 2592000000),
+        date_start: this.get30DaysAgo(),
         date_end: new Date()
       })
       .subscribe((data: []) => {

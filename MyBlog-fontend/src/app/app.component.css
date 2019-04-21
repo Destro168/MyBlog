@@ -8,6 +8,7 @@ button {
   width: 100%;
   margin: auto;
   padding: 20px;
+  margin-top: 20px;
 }
 
 .customJumbo {
@@ -23,14 +24,11 @@ button {
   background-color: #ccc;
 }
 
-.post {
-  border: 5px solid lightblue;
-  margin: 2px;
-  padding: 5px;
-  height: 100%;
-  overflow: auto;
-}
-
 button {
     width: 120px;
+}
+
+.post_edit_textarea {
+  width: 100%;
+  margin-bottom: 10px;
 }

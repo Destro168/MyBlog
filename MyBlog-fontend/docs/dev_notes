@@ -1,8 +1,6 @@
-Angular Forms:
-      <!-- https://angular.io/guide/forms -->
-
-
+=============
 TODO:
+=============
 
 Add Search Options:
 
@@ -12,8 +10,9 @@ Add Search Options:
 2.) Add drop-down in create section that lets you choose a category for your post.
 3.) Add a filter option for categories that let's you filter what you see by category. When you select an option from the drop-down, all results are filtered.
 
+--- Filter Options:
 
+- Pagination, with limit of 25 results per page.
+- Search field. Real-time results.
 
-
-Add date range fields to customize results shown even further.
-Also, add a limit field to limit results. Will be a part of the header of course.
+- Note Export Feature.
