@@ -25,7 +25,8 @@
     <h1>Filter Options:</h1>
     <h3>Date Range:
       <input type="text" [(ngModel)]="filterSettings.date_start_str">
-      <input type="text" [(ngModel)]="filterSettings.date_end_str"></h3>
+      <input type="text" [(ngModel)]="filterSettings.date_end_str">
+    </h3>
     <button class="btn btn-primary" (click)="syncFilterDataObject()">Filter</button>
     <br />
   </div>
@@ -42,11 +43,46 @@
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
 
-    <!-- Section for viewing all posts. -->
-    <div *ngFor="let year of allYears">
+    <!-- Pagination Component -->
+    <nav id="pagination-nav" aria-label="Page navigation example">
+      <ul class="pagination">
+
+        <li class="page-item disabled">
+          <a class="page-link" href="#pagination-nav" tabindex="-1">Previous</a>
+        </li>
+
+        <div *ngFor="let item of getPaginationIndexes()">
+          <li class="page-item">
+            <a class="page-link" href="#pagination-nav" (click)="filterSettings.page_index = item">{{item+1}}</a>
+          </li>
+        </div>
+
+        <li class="page-item">
+          <a class="page-link" href="#pagination-nav">Next</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Page Results Filter Drop-down -->
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
+        Page Results
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" (click)="filterSettings.resultLimit = 5; filterSettings.page_index = 0;">5</a>
+        <a class="dropdown-item" (click)="filterSettings.resultLimit = 10; filterSettings.page_index = 0;">10</a>
+        <a class="dropdown-item" (click)="filterSettings.resultLimit = 25; filterSettings.page_index = 0;">25</a>
+        <a class="dropdown-item" (click)="filterSettings.resultLimit = 100; filterSettings.page_index = 0;">100</a>
+      </div>
+    </div>
+
+    <!-- Container for all posts. -->
+    <div id="post-container" *ngFor="let year of allYears">
       <div *ngFor="let month of getKeys(filteredPostDataObject[year])">
         <div *ngFor="let day of getReversedKeys(filteredPostDataObject[year][month])">
           <h1>{{month}} {{getFormattedDay(day)}}, {{year}}</h1>
+
           <div *ngFor="let dayData of getFilteredData(year, month, day)">
 
             <div class="card">
@@ -60,10 +96,10 @@
 
                 <span *ngIf="dayData['displayMode'] == 'edit'">
 
-                    <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
-                      {{ getFormattedCategory(dayData['category']) }}</h5>
-                    <textarea class="post_edit_textarea" value="{{dayData['content']}}"
-                      [(ngModel)]="dayData['content']"></textarea><br />
+                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
+                    {{ getFormattedCategory(dayData['category']) }}</h5>
+                  <textarea class="post_edit_textarea" value="{{dayData['content']}}"
+                    [(ngModel)]="dayData['content']"></textarea><br />
 
                   <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
                   <button type="submit" class="btn btn-warning"
@@ -77,9 +113,11 @@
             </div>
 
           </div>
+
         </div>
       </div>
     </div>
+
   </span>
 
   <!-- About Me Section -->

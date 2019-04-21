@@ -4,7 +4,7 @@ TODO:
 
 Add Search Options:
 
-- Category Search/Filtering: 3 tasks.
+--- Category Search/Filtering: 3 tasks.
 
 1.) Fix URL for routing, etc. properly to pass category through body.
 2.) Add drop-down in create section that lets you choose a category for your post.
@@ -15,4 +15,6 @@ Add Search Options:
 - Pagination, with limit of 25 results per page.
 - Search field. Real-time results.
 
-- Note Export Feature.
+---  Note Export Feature.
+
+--- Expandable/Collapsable Sections.

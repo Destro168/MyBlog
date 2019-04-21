@@ -24,8 +24,12 @@ export class AppComponent implements OnInit {
 
   public filterSettings = {
     date_start_str: getUserStrFromDate(new Date(this.getOneDayAgo())),
-    date_end_str: getUserStrFromDate(new Date(this.getSuperFuture()))
+    date_end_str: getUserStrFromDate(new Date(this.getSuperFuture())),
+    resultLimit: 5,
+    page_index: 0
   };
+
+  public filteredPostDataObjectSize = 0;
 
   // The text stored in #textareaNewPost
   public formContent = '';
@@ -138,6 +142,17 @@ export class AppComponent implements OnInit {
     }
   }
 
+  public getPaginationIndexes() {
+    const arr = [];
+    let i = 0;
+
+    for (i = 0; i < Math.floor((this.filteredPostDataObjectSize - 1) / this.filterSettings.resultLimit) + 1; i++) {
+      arr.push(i);
+    }
+
+    return arr;
+  }
+
   /**********************************************************
    * Functions that manage post data,the content used
    *  in the app component view.
@@ -182,6 +197,8 @@ export class AppComponent implements OnInit {
     const filterStartDate = this.getDateFromUserStr(this.filterSettings.date_start_str).getTime();
     const filterEndDate = this.getDateFromUserStr(this.filterSettings.date_end_str).getTime();
 
+    this.filteredPostDataObjectSize = 0;
+
     for (let i = 0; i < y.length; i++) {
       date = y[i].date;
 
@@ -208,6 +225,8 @@ export class AppComponent implements OnInit {
           content: y[i]['content'],
           displayMode: y[i]['displayMode']
         });
+
+        this.filteredPostDataObjectSize++;
       }
     }
 
@@ -254,7 +273,11 @@ export class AppComponent implements OnInit {
         G_MONTHS[v.date.getMonth()] === month && v.date.getFullYear() === year && v.date.getDate() === parseInt(day, 10)
       )
       .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .reverse();
+      .reverse()
+      .slice(
+        this.filterSettings.page_index * this.filterSettings.resultLimit,
+        this.filterSettings.page_index * this.filterSettings.resultLimit + this.filterSettings.resultLimit
+      );
   }
 
   public setAllPostsEdit = () => {

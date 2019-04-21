@@ -24,10 +24,6 @@ button {
   background-color: #ccc;
 }
 
-button {
-    width: 120px;
-}
-
 .post_edit_textarea {
   width: 100%;
   margin-bottom: 10px;
