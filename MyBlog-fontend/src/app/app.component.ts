@@ -52,6 +52,9 @@ export class AppComponent implements OnInit {
   public filteredPostDataObject = {};
   public allYears = [];
 
+  // An array of results for display.
+  public resultsArr = [];
+
   // A variable storing the current visibility of any given tab on the view for this component.
   public tabVisibility = {
     1: true,
@@ -145,8 +148,8 @@ export class AppComponent implements OnInit {
   }
 
 
-  public getFormattedDay(day: number) {
-    switch (day) {
+  public getFormattedDay(day: string) {
+    switch (parseInt(day, 10)) {
       case 1:
       case 21:
         return day.toString().concat('st');
@@ -210,14 +213,10 @@ export class AppComponent implements OnInit {
         }
 
         if (!x[year][month][day]) {
-          x[year][month][day] = [];
+          x[year][month][day] = 0;
         }
 
-        x[year][month][day].push({
-          _id: y[i]['_id'],
-          content: y[i]['content'],
-          displayMode: y[i]['displayMode']
-        });
+        x[year][month][day]++;
 
         this.filteredPostDataObjectSize++;
       }
@@ -261,6 +260,59 @@ export class AppComponent implements OnInit {
     return formattedPostData.filter(v => v['year'] === year);
   }
 
+  public updateResultsArr() {
+    const temp = [];
+    const yearArr = this.allYears;
+    let monthArr;
+    let dayArr;
+
+    // Store all data sorted by month and day.
+    yearArr.forEach(e1 => {
+      monthArr = this.getKeys(this.filteredPostDataObject[e1]);
+      monthArr.forEach(e2 => {
+        dayArr = this.getReversedKeys(this.filteredPostDataObject[e1][e2]);
+        dayArr.forEach(e3 => {
+          temp.push({
+            header: e2.concat(' ').concat(this.getFormattedDay(e3)).concat(', ').concat(e1),
+            postData: this.getFilteredData(e1, e2, e3)
+          });
+        });
+      });
+    });
+
+    // Arrange array data into chunks of 5.
+
+    const temp2 = [];
+    let savedPostNumber = 0;
+    let resultArrIndex = 0;
+
+    for (let i = 0; i < temp.length; i++) {
+      const e1 = temp[i];
+
+      for (let j = 0; j < temp[i].postData.length; j++) {
+        const e2 = temp[i].postData[j];
+
+        if (!temp2[resultArrIndex]) {
+          temp2[resultArrIndex] = [];
+        }
+
+        temp2[resultArrIndex].push({
+          header: e1.header,
+          postData: e2
+        });
+
+        savedPostNumber++;
+
+        if (savedPostNumber > 4) {
+          savedPostNumber = 0;
+          resultArrIndex++;
+        }
+      }
+    }
+
+    this.resultsArr = temp2;
+  }
+
   public getFilteredData(year, month, day) {
     return this.postDataArray.filter(v =>
         G_MONTHS[v.date.getMonth()] === month &&
@@ -269,11 +321,11 @@ export class AppComponent implements OnInit {
         (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category)
       )
       .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .reverse()
-      .slice(
-        this.filterSettings.page_index * this.filterSettings.resultLimit,
-        this.filterSettings.page_index * this.filterSettings.resultLimit + this.filterSettings.resultLimit
-      );
+      .reverse();
+  }
+
+  public getResultFragment() {
+
   }
 
   public setAllPostsEdit = () => {
@@ -385,6 +437,7 @@ export class AppComponent implements OnInit {
 
         this.allYears = this.getAllYears(this.postDataArray);
         this.formContent = '';
+        this.updateResultsArr();
       });
 
     return;
@@ -414,6 +467,7 @@ export class AppComponent implements OnInit {
         this.postDataArray = temp;
         this.syncFilterDataObject();
         this.allYears = this.getAllYears(this.postDataArray);
+        this.updateResultsArr();
       });
   }
 }

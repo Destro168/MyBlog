@@ -108,78 +108,59 @@
     </div>
 
 
-    <!-- Container for all posts. -->
-    <div id="post-container" *ngFor="let year of allYears">
-      <div *ngFor="let month of getKeys(filteredPostDataObject[year])">
-        <div *ngFor="let day of getReversedKeys(filteredPostDataObject[year][month])">
+    <div *ngFor="let result of resultsArr[filterSettings.page_index]">
+      <!-- Wrap each post into a card. -->
+      <div class="card" style="margin-bottom: 5px;">
+        <div class="card-body">
 
-          <!-- Create a 'post' card for each filtered data element. -->
-          <div *ngFor="let dayData of getFilteredData(year, month, day); index as i">
+          <!-- View Mode -->
+          <span *ngIf="result.postData['displayMode'] == 'view'" (click)='result.postData["displayMode"] = "edit"'>
+            <h5 class="card-title">{{ getFormattedTime(result.postData['date']) }} in
+              {{ getFormattedCategory(result.postData['category']) }} on {{result.header}}</h5>
+            <p class="card-text">{{ result.postData['content'] }}</p>
+          </span>
 
-            <!-- Show header on first index only. -->
-            <span *ngIf="i === 0">
-              <h3>{{month}} {{getFormattedDay(day)}}, {{year}}</h3>
-            </span>
+          <!-- Edit Mode -->
+          <span *ngIf="result.postData['displayMode'] == 'edit'">
 
-            <!-- Wrap each post into a card. -->
-            <div class="card" style="margin-bottom: 5px;">
-              <div class="card-body">
+            <!-- Card Header -->
+            <h5 class="card-title">{{ getFormattedTime(result.postData['date']) }} in
+              {{ getFormattedCategory(result.postData['category']) }}</h5>
 
-                <!-- View Mode -->
-                <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
-                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
-                    {{ getFormattedCategory(dayData['category']) }}</h5>
-                  <p class="card-text">{{ dayData['content'] }}</p>
-                </span>
+            <!-- Created Date Input Field -->
+            <h5>Update Date (MM/DD/YYYY/HH/MM/SS):
+              <input type="text" [(ngModel)]="result.postData['date_str']">
+            </h5>
 
-                <!-- Edit Mode -->
-                <span *ngIf="dayData['displayMode'] == 'edit'">
+            <!-- Card textarea to modify content. -->
+            <h5>Update Content:</h5>
+            <textarea class="post_edit_textarea" value="{{result.postData['content']}}"
+              [(ngModel)]="result.postData['content']"></textarea><br />
 
-                  <!-- Card Header -->
-                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
-                    {{ getFormattedCategory(dayData['category']) }}</h5>
-
-                  <!-- Created Date Input Field -->
-                  <h5>Update Date (MM/DD/YYYY/HH/MM/SS):
-                    <input type="text" [(ngModel)]="dayData['date_str']">
-                  </h5>
-  
-                  <!-- Card textarea to modify content. -->
-                  <h5>Update Content:</h5>
-                  <textarea class="post_edit_textarea" value="{{dayData['content']}}"
-                    [(ngModel)]="dayData['content']"></textarea><br />
-
-                  <!-- Category Dropdown -->
-                  <div id="new-post-category-controls">
-                    <h5 style="margin: 5px;">Update Category:</h5>
-                    <div class="dropdown" style="margin-bottom: 10px;">
-                      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{dayData['category']}}
-                      </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <span *ngFor="let item of G_CATEGORY_ARRAY">
-                          <a class="dropdown-item" (click)="dayData['category'] = item">{{item}}</a>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 3 Button Group (Save/Cancel/Delete) -->
-                  <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
-                  <button type="submit" class="btn btn-warning"
-                    (click)='dayData["displayMode"] = "view"'>Cancel</button>
-                  <button type="submit" class="btn btn-danger"
-                    (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
-
-
-                </span>
-
+            <!-- Category Dropdown -->
+            <div id="new-post-category-controls">
+              <h5 style="margin: 5px;">Update Category:</h5>
+              <div class="dropdown" style="margin-bottom: 10px;">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{result.postData['category']}}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <span *ngFor="let item of G_CATEGORY_ARRAY">
+                    <a class="dropdown-item" (click)="result.postData['category'] = item">{{item}}</a>
+                  </span>
+                </div>
               </div>
             </div>
 
-          </div>
+            <!-- 3 Button Group (Save/Cancel/Delete) -->
+            <button type="submit" class="btn btn-primary" (click)='performSave(result.postData)'>Save</button>
+            <button type="submit" class="btn btn-warning"
+              (click)='result.postData["displayMode"] = "view"'>Cancel</button>
+            <button type="submit" class="btn btn-danger"
+              (click)='doDeleteRemovePost(result.postData["_id"])'>Delete</button>
 
+          </span>
         </div>
       </div>
     </div>
