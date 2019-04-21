@@ -1,4 +1,4 @@
-# Tech Noob Blog Back-End Readme.
+# The Tech Noob's Note Keeping App - Back-End Readme.
 
 Start the app by running start-backend.bat. Then, you can access the RESTFUL API at URL:
 http://localhost:3000/

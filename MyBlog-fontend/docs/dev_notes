@@ -2,19 +2,16 @@
 TODO:
 =============
 
-Add Search Options:
-
---- Category Search/Filtering: 3 tasks.
-
-1.) Fix URL for routing, etc. properly to pass category through body.
-2.) Add drop-down in create section that lets you choose a category for your post.
-3.) Add a filter option for categories that let's you filter what you see by category. When you select an option from the drop-down, all results are filtered.
-
---- Filter Options:
-
-- Pagination, with limit of 25 results per page.
-- Search field. Real-time results.
-
+--- Search field. Real-time results.
 ---  Note Export Feature.
+--- Expandable/Collapsable Sections on page.
 
---- Expandable/Collapsable Sections.
+
+BIG TODO:
+
+Fix bug where pagination not working across multiple days. (Next patch)
+
+Current idea is to count up how many variables are available at each year/month/day.
+This will require modifying syncFilterDataObject to count up these totals for use in getFilteredData() to perfectly slice records dynamically.
+
+(Currently, it slices up to 5 per day, needs to slice 5 universally).

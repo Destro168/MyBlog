@@ -39,20 +39,20 @@ var postTemplateObj = {
 var postSchema = new mongoose.Schema(postTemplateObj);
 var postModel = mongoose.model('Thread', postSchema);
 
-// Returns whether some content is a valid type of content.
-const g_IsValidContent = (content) => ['technical', 'personal'].indexOf(content) != -1
-
 // Default get used just to test service.
 app.get('/', (req, res) => {
 	res.send('Service is alive. Hello World!')
 })
 
-app.route('/api/posts/:category')
+app.route('/api/posts')
 	// Get a post's data object.
 	.get(function (req, res) {
-		let categoryParam = req.params.category;
+		const G_ALL_CATEGORY_STR = 'All';
+		let categoryParam = req.query.category;
 		let date_start = req.query.date_start;
 		let date_end = req.query.date_end;
+		let query;
+		let queryObj = {};
 
 		if (!date_start) {
 			date_start = new Date(0);
@@ -66,13 +66,7 @@ app.route('/api/posts/:category')
 			date_end = new Date(date_end);
 		}
 
-		if (!g_IsValidContent(categoryParam)) {
-			res.status(400).send("Error, bad category data.");
-			return;
-		}
-
-		var query = postModel.find({
-			category: categoryParam,
+		queryObj = {
 			$and: [{
 				created_on: {
 					$gte: date_start
@@ -82,7 +76,13 @@ app.route('/api/posts/:category')
 					$lte: date_end
 				}
 			}]
-		});
+		};
+
+		if (categoryParam && categoryParam !== G_ALL_CATEGORY_STR) {
+			queryObj["category"] = categoryParam;
+		}
+
+		query = postModel.find(queryObj);
 
 		// Execute the query. Send error on error, otherwise send data.
 		query.exec((err, data) => {
@@ -92,14 +92,9 @@ app.route('/api/posts/:category')
 
 	// Posts some content.
 	.post(function (req, res) {
-		if (!g_IsValidContent(req.params.category)) {
-			res.status(400).send("Error, bad category data.");
-			return;
-		}
-
 		var post = new postModel({
 			content: req.body.content,
-			category: req.params.category
+			category: req.body.category
 		});
 
 		post.save((err, post) => {
@@ -112,9 +107,9 @@ app.route('/api/posts/:category')
 		return;
 	})
 
-app.route('/api/posts/:category/:id')
-	 // Delete some content by using it's id.
-	 // (TODO: Make it so that no category is necessary. Honestly, probably category should not be passed via the url...)
+app.route('/api/posts/:id')
+	// Delete some content by using it's id.
+	// (TODO: Make it so that no category is necessary. Honestly, probably category should not be passed via the url...)
 	.delete(function (req, res) {
 		if (!req.params.id) {
 			res.status(400).send("Bad id.");

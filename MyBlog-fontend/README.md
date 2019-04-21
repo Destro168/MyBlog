@@ -1,4 +1,4 @@
-# Tech Noob Blog Front-End Readme.
+# The Tech Noob's Note Keeping App - Front-End Readme.
 
 ## Starting the Server
 

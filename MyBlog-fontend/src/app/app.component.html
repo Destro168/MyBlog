@@ -1,7 +1,7 @@
 <div id="main">
 
   <h1 class="display-4">
-    The Tech Noob's Blog
+    The Tech Noob's Note Keeping App
   </h1>
 
   <hr>
@@ -14,8 +14,28 @@
         <label for="name"></label><br />
         <textarea id="textareaNewPost" rows="3" class="form-control" id="content" name="content"
           [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
+
+
+        <!-- Category Selection // TODO => Make a drop-down component... -->
+        <div id="new-post-category-controls">
+          <h3 style="margin-right:10px">Choose Category:</h3>
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              {{formCategory}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <span *ngFor="let item of G_CATEGORY_ARRAY">
+                <a class="dropdown-item" (click)="formCategory = item">{{item}}</a>
+              </span>
+            </div>
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
       </div>
+
+
     </form>
   </div>
   <hr>
@@ -31,8 +51,9 @@
     <br />
   </div>
 
-
   <hr>
+
+  <!-- Mass operations section. -->
   <div id="filter_section">
     <h1>Mass Operations</h1>
     <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit All</button>
@@ -43,70 +64,109 @@
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
 
-    <!-- Pagination Component -->
-    <nav id="pagination-nav" aria-label="Page navigation example">
-      <ul class="pagination">
+    <div id="post-container-controls">
 
-        <li class="page-item disabled">
-          <a class="page-link" href="#pagination-nav" tabindex="-1">Previous</a>
-        </li>
-
-        <div *ngFor="let item of getPaginationIndexes()">
-          <li class="page-item">
-            <a class="page-link" href="#pagination-nav" (click)="filterSettings.page_index = item">{{item+1}}</a>
-          </li>
+      <!-- Page Results Filter Drop-down -->
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          Page Results
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <span *ngFor="let item of [5,10,25,100]">
+            <a class="dropdown-item"
+              (click)="filterSettings.resultLimit = item; filterSettings.page_index = 0;">{{item}}</a>
+          </span>
         </div>
-
-        <li class="page-item">
-          <a class="page-link" href="#pagination-nav">Next</a>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Page Results Filter Drop-down -->
-    <div class="dropdown">
-      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="false">
-        Page Results
-      </button>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" (click)="filterSettings.resultLimit = 5; filterSettings.page_index = 0;">5</a>
-        <a class="dropdown-item" (click)="filterSettings.resultLimit = 10; filterSettings.page_index = 0;">10</a>
-        <a class="dropdown-item" (click)="filterSettings.resultLimit = 25; filterSettings.page_index = 0;">25</a>
-        <a class="dropdown-item" (click)="filterSettings.resultLimit = 100; filterSettings.page_index = 0;">100</a>
       </div>
+
+      <!-- Category Filter -->
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          Category
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <span *ngFor="let item of getFilterList()">
+            <a class="dropdown-item" (click)="filterSettings.category = item">{{item}}</a>
+          </span>
+        </div>
+      </div>
+
+
+      <!-- Pagination Component -->
+      <nav id="pagination-nav" aria-label="Page navigation example">
+        <ul class="pagination">
+          <div *ngFor="let item of getPaginationIndexes()">
+            <li class="page-item">
+              <a class="page-link" (click)="filterSettings.page_index = item">{{item+1}}</a>
+            </li>
+          </div>
+        </ul>
+      </nav>
+
     </div>
+
 
     <!-- Container for all posts. -->
     <div id="post-container" *ngFor="let year of allYears">
       <div *ngFor="let month of getKeys(filteredPostDataObject[year])">
         <div *ngFor="let day of getReversedKeys(filteredPostDataObject[year][month])">
-          <h1>{{month}} {{getFormattedDay(day)}}, {{year}}</h1>
 
-          <div *ngFor="let dayData of getFilteredData(year, month, day)">
+          <!-- Create a 'post' card for each filtered data element. -->
+          <div *ngFor="let dayData of getFilteredData(year, month, day); index as i">
 
+            <!-- Show header on first index only. -->
+            <span *ngIf="i === 0">
+              <h1>{{month}} {{getFormattedDay(day)}}, {{year}}</h1>
+            </span>
+
+            <!-- Wrap each post into a card. -->
             <div class="card">
               <div class="card-body">
 
+                <!-- View Mode -->
                 <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
                   <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
                     {{ getFormattedCategory(dayData['category']) }}</h5>
                   <p class="card-text">{{ dayData['content'] }}</p>
                 </span>
 
+                <!-- Edit Mode -->
                 <span *ngIf="dayData['displayMode'] == 'edit'">
 
+                  <!-- Card Header -->
                   <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
                     {{ getFormattedCategory(dayData['category']) }}</h5>
+
+                  <!-- Card textarea to modify content. -->
                   <textarea class="post_edit_textarea" value="{{dayData['content']}}"
                     [(ngModel)]="dayData['content']"></textarea><br />
 
+                  <!-- Created Date Input Field -->
+                  <h3>Custom Date:
+                    <input type="text" [(ngModel)]="dayData['date_str']">
+                  </h3>
+
+                  <!-- 3 Button Group (Save/Cancel/Delete) -->
                   <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
                   <button type="submit" class="btn btn-warning"
                     (click)='dayData["displayMode"] = "view"'>Cancel</button>
                   <button type="submit" class="btn btn-danger"
                     (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
 
+                  <!-- Category Dropdown -->
+                  <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {{dayData['category']}}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <span *ngFor="let item of G_CATEGORY_ARRAY">
+                        <a class="dropdown-item" (click)="dayData['category'] = item">{{item}}</a>
+                      </span>
+                    </div>
+                  </div>
                 </span>
 
               </div>

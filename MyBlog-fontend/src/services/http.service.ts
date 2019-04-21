@@ -17,16 +17,12 @@ import {
   providedIn: 'root',
 })
 export class HttpService {
-  configUrl = 'http://localhost:3000/api/posts/technical';
+  configUrl = 'http://localhost:3000/api/posts';
 
   constructor(private http: HttpClient) {}
 
-  getPostsAll() {
-    return this.http.get(this.configUrl);
-  }
-
-  getPostsLast30Days(dataObj) {
-    const finalUrl = this.configUrl + '?date_start=' + dataObj.date_start + '&date_end=' + dataObj.date_end;
+  getPosts(date_start, date_end, category) {
+    const finalUrl = this.configUrl + '?date_start=' + date_start + '&date_end=' + date_end + '&category=' + category;
     return this.http.get(finalUrl);
   }
 

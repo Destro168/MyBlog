@@ -11,7 +11,11 @@ const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+
+
 const getUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear();
+const getLongUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '/' +
+  date.getHours() + '/' + date.getMinutes() + '/' + date.getSeconds();
 
 @Component({
   selector: 'app-root',
@@ -22,17 +26,24 @@ export class AppComponent implements OnInit {
   // Constructor -> Activates service httpService.
   constructor(private httpService: HttpService) {}
 
+  public G_CATEGORY_ARRAY = ['General', 'Roleplaying', 'Personal', 'Work', 'Programming'];
+  public G_FILTER_SETTING_ALL = 'All';
+
+  // TODO CATEGORY:  Add a category field.
   public filterSettings = {
-    date_start_str: getUserStrFromDate(new Date(this.getOneDayAgo())),
+    date_start_str: getUserStrFromDate(new Date(this.get30DaysAgo())),
     date_end_str: getUserStrFromDate(new Date(this.getSuperFuture())),
     resultLimit: 5,
-    page_index: 0
+    page_index: 0,
+    category: this.G_FILTER_SETTING_ALL
   };
 
   public filteredPostDataObjectSize = 0;
 
   // The text stored in #textareaNewPost
+  // TODO, MAKE INTO OBJECT.
   public formContent = '';
+  public formCategory = this.G_CATEGORY_ARRAY[0];
 
   // Array of post data. Must remain synchronized with postDataObject. postDataObject depends on this variable.
   public postDataArray = [];
@@ -47,13 +58,12 @@ export class AppComponent implements OnInit {
     2: false
   };
 
-
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
    * defined in this component class.
    */
   ngOnInit() {
-    this.doGetPostDataAll();
+    this.doGetPostData();
   }
 
   /**********************************************************
@@ -129,13 +139,22 @@ export class AppComponent implements OnInit {
     return new Date(dateData[2], (dateData[0] - 1), dateData[1]);
   }
 
+  public getLongDateFromUserStr = (date_str) => {
+    const dateData = date_str.split('/').map(v => parseInt(v, 10));
+    return new Date(dateData[2], (dateData[0] - 1), dateData[1], dateData[3], dateData[4], dateData[5]);
+  }
+
+
   public getFormattedDay(day: number) {
     switch (day) {
       case 1:
+      case 21:
         return day.toString().concat('st');
       case 2:
+      case 22:
         return day.toString().concat('nd');
       case 3:
+      case 23:
         return day.toString().concat('rd');
       default:
         return day.toString().concat('th');
@@ -154,34 +173,9 @@ export class AppComponent implements OnInit {
   }
 
   /**********************************************************
-   * Functions that manage post data,the content used
+   * Functions that manage post data, the content used
    *  in the app component view.
    **********************************************************/
-
-  /**
-   * This function updates the postDataArray variable with the data in arg x.
-   * @param x An array of data retrieved from the backend that is converted into a usable array of data.
-   * Note: x is Usually acquired from a 'get' call in the restful function section.
-   */
-  private updatePostData(x) {
-    const tempPostDataArray = [];
-
-    for (let i = 0; i < x.length; i++) {
-      const date = new Date(x[i].date);
-
-      tempPostDataArray.push({
-        _id: x[i]['_id'],
-        date: date,
-        time: this.getFormattedTime(date),
-        category: x[i]['category'],
-        content: x[i]['content'],
-        displayMode: 'view'
-      });
-    }
-
-    this.postDataArray = tempPostDataArray;
-    this.syncFilterDataObject();
-  }
 
   /**
    * Function that sets postDataObject to values in postDataArray.
@@ -221,7 +215,6 @@ export class AppComponent implements OnInit {
 
         x[year][month][day].push({
           _id: y[i]['_id'],
-          time: y[i]['time'],
           content: y[i]['content'],
           displayMode: y[i]['displayMode']
         });
@@ -270,7 +263,10 @@ export class AppComponent implements OnInit {
 
   public getFilteredData(year, month, day) {
     return this.postDataArray.filter(v =>
-        G_MONTHS[v.date.getMonth()] === month && v.date.getFullYear() === year && v.date.getDate() === parseInt(day, 10)
+        G_MONTHS[v.date.getMonth()] === month &&
+        v.date.getFullYear() === year &&
+        v.date.getDate() === parseInt(day, 10) &&
+        (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category)
       )
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .reverse()
@@ -288,8 +284,12 @@ export class AppComponent implements OnInit {
   }
 
   public performSave(dayData) {
-    this.doPutEditPost(dayData['content'], dayData['_id']);
+    this.doPutEditPost(dayData);
     dayData['displayMode'] = 'view';
+  }
+
+  public getFilterList() {
+    return [this.G_FILTER_SETTING_ALL, ...this.G_CATEGORY_ARRAY];
   }
 
   /**********************************************************
@@ -301,21 +301,31 @@ export class AppComponent implements OnInit {
    * @param content Some string of text.
    * @param id A mongoDB id that references a record.
    */
-  public doPutEditPost(content: string, id: number) {
+  public doPutEditPost(dayData) {
+    const content = dayData['content'];
+    const category = dayData['category'];
+    const id = dayData['_id'];
+    const dateFromUserStr = this.getLongDateFromUserStr(dayData['date_str']);
+
     if (content === '' || !id) {
-      console.log('Bad form content:', content, id);
+      console.log('Bad form content:', dayData);
       return;
     }
 
+    // The values for the postObject MUST match RESTFUL API specifications.
     this.httpService.doPut(id, {
         postObject: {
-          content: content
+          content: content,
+          category: category,
+          created_on: dateFromUserStr
         }
       })
       .subscribe(v => {
-        // Don't need to do anything special since content is data-bind. Just log success.
+        // Update post object's date to match user date.
+        dayData['date'] = dateFromUserStr;
+
+        // Sync
         this.syncFilterDataObject();
-        console.log('Successfully performed the put operation!');
       });
   }
 
@@ -354,15 +364,17 @@ export class AppComponent implements OnInit {
     }
 
     this.httpService.doPost({
-        content: this.formContent
+        content: this.formContent,
+        category: this.formCategory
       })
       .subscribe(v => {
         const x = v.post;
-        const date = new Date(x['created_on']);
+        const postDate = new Date(x['created_on']);
 
         this.postDataArray.push({
           _id: x['_id'],
-          date: date,
+          date: postDate,
+          date_str: getLongUserStrFromDate(postDate),
           category: x['category'],
           content: x['content'],
           displayMode: 'view'
@@ -379,44 +391,28 @@ export class AppComponent implements OnInit {
   }
 
   /**
-   * Perform a get operation to retrieve all post data.
+   * Perform a GET operation to get all posts using filter settings to limit results.
    */
-  public doGetPostDataAll() {
-    this.httpService.getPostsAll()
+  public doGetPostData() {
+    this.httpService.getPosts(
+        this.getDateFromUserStr(this.filterSettings.date_start_str),
+        this.getDateFromUserStr(this.filterSettings.date_end_str),
+        this.filterSettings.category
+      )
       .subscribe((data: []) => {
         const temp = [];
 
         data.forEach(v => temp.push({
           _id: v['_id'],
+          date: new Date(v['created_on']),
+          date_str: getLongUserStrFromDate(new Date(v['created_on'])),
           category: v['category'],
           content: v['content'],
-          date: v['created_on']
+          displayMode: 'view'
         }));
 
-        this.updatePostData(temp);
-        this.allYears = this.getAllYears(this.postDataArray);
-      });
-  }
-
-  /**
-   * Perform a get operation to get all posts within the last 30 days.
-   */
-  public doGetPostData30Days() {
-    this.httpService.getPostsLast30Days({
-        date_start: this.get30DaysAgo(),
-        date_end: new Date()
-      })
-      .subscribe((data: []) => {
-        const temp = [];
-
-        data.forEach(v => temp.push({
-          _id: v['_id'],
-          category: v['category'],
-          content: v['content'],
-          date: v['created_on']
-        }));
-
-        this.updatePostData(temp);
+        this.postDataArray = temp;
+        this.syncFilterDataObject();
         this.allYears = this.getAllYears(this.postDataArray);
       });
   }

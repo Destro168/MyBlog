@@ -1,5 +1,4 @@
-# MyBlog
-My Blog Application - Noob Notes
+# The Tech Noob's Note Keeping App - Noob Notes
 
 This is my custom blogging/note-taking web application. It is a huge work in progress, but progress will be made every weekend as necessary until I'm satisfied to call this application relased at version 1.0.
 
