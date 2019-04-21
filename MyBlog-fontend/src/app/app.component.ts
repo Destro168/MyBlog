@@ -54,6 +54,13 @@ export class AppComponent implements OnInit {
    * @returns Returns a date object formatted as hours and minutes wtih padded 0 if necessary.
    */
   public getFormattedTime(date): string {
+    let sign = 'AM';
+    let hours = date.getHours();
+
+    if (hours > 13) {
+      hours -= 12;
+      sign = 'PM';
+    }
 
     // Sub-helper function to return a formatted unit of time.
     const getFormattedTimeUnit = (timeUnit) => {
@@ -67,9 +74,9 @@ export class AppComponent implements OnInit {
     };
 
     // Return a string formed of formatted units of time.
-    return getFormattedTimeUnit(date.getHours()) + ':' +
+    return getFormattedTimeUnit(hours) + ':' +
       getFormattedTimeUnit(date.getMinutes()) + ':' +
-      getFormattedTimeUnit(date.getSeconds());
+      getFormattedTimeUnit(date.getSeconds()) + ' ' + sign;
   }
 
   /**
@@ -86,6 +93,10 @@ export class AppComponent implements OnInit {
   public getReversedKeys = (obj) => (obj) ? Object.keys(obj).reverse() : [];
 
   public getFormattedTimeAndContent = (dayData) => '[' + this.getFormattedTime(dayData['date']) + ']: ' + dayData['content'];
+
+  public getFormattedCategory = (str) => {
+    return str.substring(0, 1).toUpperCase() + str.substring(1, str.length);
+  }
 
   /**********************************************************
    * Functions that manage post data,the content used
@@ -107,6 +118,7 @@ export class AppComponent implements OnInit {
         _id: x[i]['_id'],
         date: date,
         time: this.getFormattedTime(date),
+        category: x[i]['category'],
         content: x[i]['content'],
         displayMode: 'view'
       });
@@ -307,6 +319,7 @@ export class AppComponent implements OnInit {
 
         data.forEach(v => temp.push({
           _id: v['_id'],
+          category: v['category'],
           content: v['content'],
           date: v['created_on']
         }));
@@ -331,6 +344,7 @@ export class AppComponent implements OnInit {
 
         data.forEach(v => temp.push({
           _id: v['_id'],
+          category: v['category'],
           content: v['content'],
           date: v['created_on']
         }));

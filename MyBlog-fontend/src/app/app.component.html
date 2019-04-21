@@ -1,39 +1,36 @@
 <div id="main">
-  <div id="about_me">
-    <h1>The Tech Noob's Blog!</h1>
-    <h3>About the Tech Noob</h3>
-    <p>
-      My name is Donald Abdullah-Robinson and this blog is about my never-ending journey toward self-improvement. I have
-      a year of experience
-      as a Junior Software Engineer and am currently a Software Design Engineer. This blog's purpose is to discuss
-      everything relating to my own
-      journey toward self-improvement.
-    </p>
-  </div>
+
+  <h1 class="display-4">
+    The Tech Noob's Blog
+  </h1>
+
+  <hr>
 
   <!-- Section for creating a new blog post. -->
   <div id="create_post">
-    <h1>Create a New Blog Post:</h1>
+    <h1>Create New Post</h1>
     <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
       <div class="form-group">
         <label for="name"></label><br />
-        <textarea id="textareaNewPost" cols="100" rows="10" class="form-control" id="content" name="content"
+        <textarea id="textareaNewPost" rows="3" class="form-control" id="content" name="content"
           [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
         <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
       </div>
     </form>
   </div>
+  <hr>
 
   <!-- Filter options section. -->
   <div id="filter">
-    <h1>Filter Options:
-      <button class="btn btn-primary" (click)="setTabVisibility(2)">All</button>
+    <h1>Filter Options
       <button class="btn btn-primary" (click)="setTabVisibility(1)">Recent</button>
-
+      <button class="btn btn-primary" (click)="setTabVisibility(2)">All</button> |
+      View Mode
       <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit All</button>
       <button class="btn btn-primary" (click)="setAllPostsView()">View All</button>
     </h1>
   </div>
+  <hr>
 
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
@@ -41,35 +38,39 @@
     <!-- Section for viewing most recent posts. -->
     <div id="tab1" *ngIf="tabVisibility['1']">
 
-      <h1 class="blog_post_header">{{getKeys(postDataObject[allYears[0]])[0]}} {{allYears[0]}} - Recent</h1>
+      <h1 class="bg-info">{{getKeys(postDataObject[allYears[0]])[0]}} {{allYears[0]}} - Recent</h1>
       <div *ngFor="let day of getReversedKeys(postDataObject[allYears[0]][getKeys(postDataObject[allYears[0]])[0]])">
         <h1 class="day_style">Day {{day}}</h1>
-        <div class="post_container">
-          <div class="post"
-            *ngFor="let dayData of getFilteredData(allYears[0], getKeys(postDataObject[allYears[0]])[0], day)">
 
-            <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
+        <div *ngFor="let dayData of getFilteredData(allYears[0], getKeys(postDataObject[allYears[0]])[0], day)">
 
-              <p>
-                {{ getFormattedTimeAndContent(dayData) }}
-              </p>
+          <div class="card">
+            <div class="card-body">
 
-            </span>
+              <span *ngIf="dayData['displayMode'] == 'view'" (click)='dayData["displayMode"] = "edit"'>
+                  <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in {{ getFormattedCategory(dayData['category']) }}</h5>
+                  <p class="card-text">{{ dayData['content'] }}</p>
+              </span>
 
-            <span *ngIf="dayData['displayMode'] == 'edit'">
+              <span *ngIf="dayData['displayMode'] == 'edit'">
 
-              <p>
-                {{dayData['time']}}
-                <textarea cols="50" rows="3" value="{{dayData['content']}}" [(ngModel)]="dayData['content']"></textarea>
-              </p>
-              <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
-              <button type="submit" class="btn btn-warning" (click)='dayData["displayMode"] = "view"'>Cancel</button>
-              <button type="submit" class="btn btn-danger" (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
+                <p>
+                  {{dayData['time']}}
+                  <textarea cols="50" rows="3" value="{{dayData['content']}}"
+                    [(ngModel)]="dayData['content']"></textarea>
+                </p>
+                <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
+                <button type="submit" class="btn btn-warning" (click)='dayData["displayMode"] = "view"'>Cancel</button>
+                <button type="submit" class="btn btn-danger"
+                  (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
 
-            </span>
+              </span>
 
+            </div>
           </div>
+
         </div>
+
       </div>
     </div>
 
@@ -77,7 +78,7 @@
     <div id="tab2" *ngIf="tabVisibility['2']">
       <div *ngFor="let year of allYears">
         <div *ngFor="let month of getKeys(postDataObject[year])">
-          <h1 class="blog_post_header">{{month}} {{year}} - All</h1>
+          <h1 class="bg-info">{{month}} {{year}} - All</h1>
           <div *ngFor="let day of getReversedKeys(postDataObject[year][month])">
             <h1 class="day_style">Day {{day}}</h1>
             <div class="post_container">
@@ -109,6 +110,32 @@
         </div>
       </div>
     </div>
-
   </span>
+
+  <!-- About Me Section -->
+  <hr>
+  <div id="about_me">
+    <h3>About the Tech Noob</h3>
+    <p>
+      My name is Donald Abdullah-Robinson and this blog is about my never-ending journey toward self-improvement. I
+      have
+      a year of experience
+      as a Junior Software Engineer and am currently a Software Design Engineer. This blog's purpose is to discuss
+      everything relating to my own
+      journey toward self-improvement.
+    </p>
+  </div>
+
+  <hr>
+
+  <div id="footer">
+    <h3>Explore My Work</h3>
+    <button class="btn btn-primary">LinkedIn</button>
+    <button class="btn btn-primary">Portfolio</button>
+    <button class="btn btn-primary">Github</button>
+    <button class="btn btn-primary">FCC</button>
+    <button class="btn btn-primary">CodeSignal</button>
+  </div>
+
+  <hr>
 </div>
