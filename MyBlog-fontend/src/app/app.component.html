@@ -11,14 +11,13 @@
     <h1>Create New Post</h1>
     <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
       <div class="form-group">
-        <label for="name"></label><br />
+        <!-- Text area for new post -->
         <textarea id="textareaNewPost" rows="3" class="form-control" id="content" name="content"
           [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
 
-
         <!-- Category Selection // TODO => Make a drop-down component... -->
         <div id="new-post-category-controls">
-          <h3 style="margin-right:10px">Choose Category:</h3>
+          <h3 style="margin-right: 10px; margin-bottom: 10px;">Post to:</h3>
           <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
@@ -32,18 +31,18 @@
           </div>
         </div>
 
+        <!-- Submit button. -->
         <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
       </div>
-
-
     </form>
+
   </div>
   <hr>
 
   <!-- Filter options section. -->
   <div id="filter_section">
     <h1>Filter Options:</h1>
-    <h3>Date Range:
+    <h3>Date Range (MM/DD/YYYY):
       <input type="text" [(ngModel)]="filterSettings.date_start_str">
       <input type="text" [(ngModel)]="filterSettings.date_end_str">
     </h3>
@@ -64,6 +63,7 @@
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
 
+    <!-- Container for post-container display controls. -->
     <div id="post-container-controls">
 
       <!-- Page Results Filter Drop-down -->
@@ -84,7 +84,7 @@
       <div class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
-          Category
+          {{filterSettings.category}}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <span *ngFor="let item of getFilterList()">
@@ -118,11 +118,11 @@
 
             <!-- Show header on first index only. -->
             <span *ngIf="i === 0">
-              <h1>{{month}} {{getFormattedDay(day)}}, {{year}}</h1>
+              <h3>{{month}} {{getFormattedDay(day)}}, {{year}}</h3>
             </span>
 
             <!-- Wrap each post into a card. -->
-            <div class="card">
+            <div class="card" style="margin-bottom: 5px;">
               <div class="card-body">
 
                 <!-- View Mode -->
@@ -139,14 +139,31 @@
                   <h5 class="card-title">{{ getFormattedTime(dayData['date']) }} in
                     {{ getFormattedCategory(dayData['category']) }}</h5>
 
+                  <!-- Created Date Input Field -->
+                  <h5>Update Date (MM/DD/YYYY/HH/MM/SS):
+                    <input type="text" [(ngModel)]="dayData['date_str']">
+                  </h5>
+  
                   <!-- Card textarea to modify content. -->
+                  <h5>Update Content:</h5>
                   <textarea class="post_edit_textarea" value="{{dayData['content']}}"
                     [(ngModel)]="dayData['content']"></textarea><br />
 
-                  <!-- Created Date Input Field -->
-                  <h3>Custom Date:
-                    <input type="text" [(ngModel)]="dayData['date_str']">
-                  </h3>
+                  <!-- Category Dropdown -->
+                  <div id="new-post-category-controls">
+                    <h5 style="margin: 5px;">Update Category:</h5>
+                    <div class="dropdown" style="margin-bottom: 10px;">
+                      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{dayData['category']}}
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <span *ngFor="let item of G_CATEGORY_ARRAY">
+                          <a class="dropdown-item" (click)="dayData['category'] = item">{{item}}</a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
                   <!-- 3 Button Group (Save/Cancel/Delete) -->
                   <button type="submit" class="btn btn-primary" (click)='performSave(dayData)'>Save</button>
@@ -155,18 +172,7 @@
                   <button type="submit" class="btn btn-danger"
                     (click)='doDeleteRemovePost(dayData["_id"])'>Delete</button>
 
-                  <!-- Category Dropdown -->
-                  <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      {{dayData['category']}}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <span *ngFor="let item of G_CATEGORY_ARRAY">
-                        <a class="dropdown-item" (click)="dayData['category'] = item">{{item}}</a>
-                      </span>
-                    </div>
-                  </div>
+
                 </span>
 
               </div>
@@ -179,6 +185,18 @@
     </div>
 
   </span>
+
+  <!-- About Me Section -->
+  <hr>
+  <div id="user_guide">
+    <h3>User Guide</h3>
+    <p>
+      Work-In Progress:
+      To edit a single post, click it to enter exit mode, make your changes and then hit the save button.
+    </p>
+  </div>
+
+  <hr>
 
   <!-- About Me Section -->
   <hr>
@@ -196,6 +214,7 @@
 
   <hr>
 
+  <!-- Footer section.-->
   <div id="footer">
     <h3>Explore My Work</h3>
     <button class="btn btn-primary">LinkedIn</button>
