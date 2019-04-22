@@ -41,8 +41,20 @@ var postModel = mongoose.model('Thread', postSchema);
 
 // Default get used just to test service.
 app.get('/', (req, res) => {
-	res.send('Service is alive. Hello World!')
-})
+	// If we're on glitch, then respond wtih index.html page from view.
+	if (__dirname == '/app') {
+		res.sendFile(__dirname + '/views/index.html');
+	} else {
+		res.send('Service is alive. Hello World!');
+	}
+});
+
+// Used on glitch to get resources from the public folder.
+app.get('/:resource', function (req, res) {
+	if (__dirname == '/app') {
+		res.sendFile(__dirname + '/public/' + req.params.resource);
+	}
+});
 
 app.route('/api/posts')
 	// Get a post's data object.

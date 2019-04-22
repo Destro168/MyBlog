@@ -13,11 +13,25 @@ import {
   throwError
 } from 'rxjs';
 
+
+/**
+ * This function returns the backend url based on the app's load location (local or glitch).
+ */
+const G_GET_BACKEND_URL = () => {
+  const matchLength = window.location.href.match('localhost');
+  let length: number;
+
+  (matchLength) ? length = matchLength.length : length = 0;
+
+  return (length > 0) ? 'http://localhost:3000/api/posts' : 'https://the-tech-noob-blog.glitch.me/api/posts';
+};
+
+
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-  configUrl = 'http://localhost:3000/api/posts';
+  configUrl = G_GET_BACKEND_URL();
 
   constructor(private http: HttpClient) {}
 

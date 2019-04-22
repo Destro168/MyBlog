@@ -15,6 +15,7 @@ button {
 .post_edit_textarea {
   width: 100%;
   margin-bottom: 10px;
+  height: 78px;
 }
 
 .new-post-category-controls {
@@ -33,7 +34,7 @@ button {
 #post-container-controls {
   display: flex;
   margin-bottom: 10px;
-  height: 40px;
+  height: 38px;
 }
 
 #search_field {

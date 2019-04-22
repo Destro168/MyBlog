@@ -56,8 +56,8 @@
   <!-- Mass operations section. -->
   <div id="filter_section">
     <h2>Mass Operations</h2>
-    <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit</button>
     <button class="btn btn-primary" (click)="setAllPostsView()">View</button>
+    <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit</button>
   </div>
 
   <hr>
@@ -79,7 +79,7 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <span *ngFor="let item of [5,10,25,100]">
             <a class="dropdown-item"
-              (click)="filterSettings.resultLimit = item; filterSettings.page_index = 0;">{{item}}</a>
+              (click)="filterSettings.resultLimit = item; filterSettings.page_index = 0; updateResultsArr();">{{item}}</a>
           </span>
         </div>
       </div>
@@ -133,14 +133,14 @@
             <h5 class="card-title">{{ getFormattedTime(result.postData['date']) }} in
               {{ getFormattedCategory(result.postData['category']) }}</h5>
 
-            <!-- Created Date Input Field -->
+            <!-- Update Date -->
             <h5>New Date (MM/DD/YYYY/HH/MM/SS):
               <input type="text" [(ngModel)]="result.postData['date_str']">
             </h5>
 
-            <!-- Card textarea to modify content. -->
+            <!-- Update content -->
             <h5>New Content:</h5>
-            <textarea class="post_edit_textarea" value="{{result.postData['content']}}"
+            <textarea class="post_edit_textarea" value="{{result.postData['content']}}" rows="3"
               [(ngModel)]="result.postData['content']"></textarea><br />
 
             <!-- Category Dropdown -->

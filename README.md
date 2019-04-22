@@ -9,3 +9,5 @@ I'm tired of all of the free 'sticky-note lite' apps out there with cute interfa
 I am also using this as a method to refresh some of the skills that will be necessary for my next job at my next place of employment.
 
 Look forward to it!
+
+You can also use the app live on glitch at: https://the-tech-noob-blog.glitch.me/

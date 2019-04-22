@@ -2,17 +2,22 @@
 TODO:
 =============
 
-- Note Export Feature as text and CSV.
+Design:
 - Expandable/Collapsable Sections on page.
-- Code Cleanup
-
-
-- Add light colors to posts based on date. (Maybe a colored icon.)
+- Add light colored borders to posts based on date. (Maybe a colored icon.)
 - Add icons to the various buttons.
 
-- Update URLS for restful backend service with some provider.
+Features:
 
-0.1.0
-* Finalized styling for new features.
-* Removed a small bit of outdated code.
-* Set all methods in component to public, because honestly private isn't necessary with the scale of this app. (Unnecessary overhead.)
+- Move the filter options and mass operations to a modal called "Options". Inside add:
+
+* Mass delete capability with options.
+* Export/Import features.
+
+- Actually use 'handleError' in http.server.ts using angular 7 guidelines.
+- Add user accounts + authentication.
+
+Code Cleanup/Optimization:
+
+- Take advantage of interfaces throughout code.
+- Continually cleanup code.

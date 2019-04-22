@@ -287,7 +287,7 @@ export class AppComponent implements OnInit {
 
         savedPostNumber++;
 
-        if (savedPostNumber > 4) {
+        if (savedPostNumber > this.filterSettings.resultLimit) {
           savedPostNumber = 0;
           resultArrIndex++;
         }
@@ -312,10 +312,6 @@ export class AppComponent implements OnInit {
       })
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .reverse();
-  }
-
-  public getResultFragment() {
-
   }
 
   public setAllPostsEdit = () => {
@@ -393,6 +389,9 @@ export class AppComponent implements OnInit {
 
         // Update post data object to match new postDataArray.
         this.syncFilterDataObject();
+
+        // Update results array.
+        this.updateResultsArr();
       });
   }
 
