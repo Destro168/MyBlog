@@ -1,6 +1,9 @@
 =============
-TODO:
+    TODO:
 =============
+
+Priority:
+- Add user accounts + authentication for securtiy reasons.
 
 Design:
 - Expandable/Collapsable Sections on page.
@@ -10,14 +13,18 @@ Design:
 Features:
 
 - Move the filter options and mass operations to a modal called "Options". Inside add:
-
-* Mass delete capability with options.
-* Export/Import features.
-
+    * Mass delete capability with options.
+    * Export/Import features.
 - Actually use 'handleError' in http.server.ts using angular 7 guidelines.
-- Add user accounts + authentication.
 
 Code Cleanup/Optimization:
 
 - Take advantage of interfaces throughout code.
 - Continually cleanup code.
+
+====================================
+    SUPER FUTURE TODO... MAYBE:
+====================================
+
+- Add business model to make money?
+- Add real-time synchronization of data to all connected clients. (Too data heavy maybe?)

@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
 
   public filteredPostDataObjectSize = 0;
 
-  // The text stored in #textareaNewPost
+  // The text stored in the new post text area.
   // TODO, MAKE INTO OBJECT.
   public formContent = '';
   public formCategory = this.G_CATEGORY_ARRAY[0];

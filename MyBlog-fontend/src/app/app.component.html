@@ -8,28 +8,28 @@
 
   <!-- Section for creating a new blog post. -->
   <div id="create_post">
-    <h2>Create New Post</h2>
-    <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
-      <div class="form-group">
-        <!-- Text area for new post -->
-        <textarea id="textareaNewPost" rows="3" class="form-control" id="content" name="content"
-          [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
 
-        <!-- Category Selection // TODO => Make a drop-down component... -->
-        <div class="new-post-category-controls">
-          <h5 class="new-post-category-header">Post to</h5>
-          <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              {{formCategory}}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <span *ngFor="let item of G_CATEGORY_ARRAY">
-                <a class="dropdown-item" (click)="formCategory = item">{{item}}</a>
-              </span>
-            </div>
+    <!-- Category Selection // TODO => Make a drop-down component... -->
+    <div class="new-post-category-controls">
+        <h2 style="margin-right: 8px;">Create New Post in</h2>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {{formCategory}}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <span *ngFor="let item of G_CATEGORY_ARRAY">
+              <a class="dropdown-item" (click)="formCategory = item">{{item}}</a>
+            </span>
           </div>
         </div>
+      </div>
+
+    <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
+      <div>
+        <!-- Text area for new post -->
+        <textarea class="post_edit_textarea" name="content"
+          [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
 
         <!-- Submit button. -->
         <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
@@ -51,7 +51,6 @@
   </div>
 
   <hr>
-
 
   <!-- Mass operations section. -->
   <div id="filter_section">
