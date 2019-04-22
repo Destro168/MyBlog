@@ -1,6 +1,6 @@
 <div id="main">
 
-  <h1 class="display-4">
+  <h1>
     The Tech Noob's Note Keeping App
   </h1>
 
@@ -8,7 +8,7 @@
 
   <!-- Section for creating a new blog post. -->
   <div id="create_post">
-    <h1>Create New Post</h1>
+    <h2>Create New Post</h2>
     <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
       <div class="form-group">
         <!-- Text area for new post -->
@@ -16,8 +16,8 @@
           [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
 
         <!-- Category Selection // TODO => Make a drop-down component... -->
-        <div id="new-post-category-controls">
-          <h3 style="margin-right: 10px; margin-bottom: 10px;">Post to:</h3>
+        <div class="new-post-category-controls">
+          <h5 class="new-post-category-header">Post to</h5>
           <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
@@ -41,27 +41,31 @@
 
   <!-- Filter options section. -->
   <div id="filter_section">
-    <h1>Filter Options:</h1>
-    <h3>Date Range (MM/DD/YYYY):
+    <h2>Filter Options</h2>
+    <h5>Date Range (MM/DD/YYYY):
       <input type="text" [(ngModel)]="filterSettings.date_start_str">
       <input type="text" [(ngModel)]="filterSettings.date_end_str">
-    </h3>
+    </h5>
     <button class="btn btn-primary" (click)="syncFilterDataObject()">Filter</button>
     <br />
   </div>
 
   <hr>
 
+
   <!-- Mass operations section. -->
   <div id="filter_section">
-    <h1>Mass Operations</h1>
-    <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit All</button>
-    <button class="btn btn-primary" (click)="setAllPostsView()">View All</button>
+    <h2>Mass Operations</h2>
+    <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit</button>
+    <button class="btn btn-primary" (click)="setAllPostsView()">View</button>
   </div>
+
   <hr>
 
   <!-- Make sure there is content loaded before rendering anything. -->
   <span *ngIf="allYears[0] != undefined">
+
+    <h2>Post History</h2>
 
     <!-- Container for post-container display controls. -->
     <div id="post-container-controls">
@@ -95,7 +99,7 @@
 
 
       <!-- Pagination Component -->
-      <nav id="pagination-nav" aria-label="Page navigation example">
+      <nav id="pagination-nav" aria-label="Page navigation example" style="margin-right: 10px;">
         <ul class="pagination">
           <div *ngFor="let item of getPaginationIndexes()">
             <li class="page-item">
@@ -106,7 +110,8 @@
       </nav>
 
       <!-- Search Field -->
-      <input type="text" [(ngModel)]="filterSettings.searchField" placeholder="Search Here" (ngModelChange)="textChange()">
+      <input id="search_field" type="text" [(ngModel)]="filterSettings.searchField" placeholder="Search Here"
+        (ngModelChange)="textChange()">
     </div>
 
     <div *ngFor="let result of resultsArr[filterSettings.page_index]">
@@ -129,19 +134,19 @@
               {{ getFormattedCategory(result.postData['category']) }}</h5>
 
             <!-- Created Date Input Field -->
-            <h5>Update Date (MM/DD/YYYY/HH/MM/SS):
+            <h5>New Date (MM/DD/YYYY/HH/MM/SS):
               <input type="text" [(ngModel)]="result.postData['date_str']">
             </h5>
 
             <!-- Card textarea to modify content. -->
-            <h5>Update Content:</h5>
+            <h5>New Content:</h5>
             <textarea class="post_edit_textarea" value="{{result.postData['content']}}"
               [(ngModel)]="result.postData['content']"></textarea><br />
 
             <!-- Category Dropdown -->
-            <div id="new-post-category-controls">
-              <h5 style="margin: 5px;">Update Category:</h5>
-              <div class="dropdown" style="margin-bottom: 10px;">
+            <div class="new-post-category-controls">
+              <h5 class="new-post-category-header">New Category:</h5>
+              <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   {{result.postData['category']}}
@@ -167,23 +172,21 @@
     </div>
 
   </span>
+  <hr>
 
   <!-- About Me Section -->
-  <hr>
   <div id="user_guide">
-    <h3>User Guide</h3>
+    <h2>User Guide</h2>
     <p>
       Work-In Progress:
       To edit a single post, click it to enter exit mode, make your changes and then hit the save button.
     </p>
   </div>
-
   <hr>
 
   <!-- About Me Section -->
-  <hr>
   <div id="about_me">
-    <h3>About the Tech Noob</h3>
+    <h2>About the Tech Noob</h2>
     <p>
       My name is Donald Abdullah-Robinson and this blog is about my never-ending journey toward self-improvement. I
       have
@@ -198,7 +201,7 @@
 
   <!-- Footer section.-->
   <div id="footer">
-    <h3>Explore My Work</h3>
+    <h2>Explore My Work</h2>
     <button class="btn btn-primary">LinkedIn</button>
     <button class="btn btn-primary">Portfolio</button>
     <button class="btn btn-primary">Github</button>

@@ -24,7 +24,7 @@ const getLongUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDat
 })
 export class AppComponent implements OnInit {
   // Constructor -> Activates service httpService.
-  constructor(private httpService: HttpService) {}
+  constructor(public httpService: HttpService) {}
 
   public G_CATEGORY_ARRAY = ['General', 'Roleplaying', 'Personal', 'Work', 'Programming'];
   public G_FILTER_SETTING_ALL = 'All';
@@ -55,12 +55,6 @@ export class AppComponent implements OnInit {
 
   // An array of results for display.
   public resultsArr = [];
-
-  // A variable storing the current visibility of any given tab on the view for this component.
-  public tabVisibility = {
-    1: true,
-    2: false
-  };
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
@@ -180,6 +174,7 @@ export class AppComponent implements OnInit {
    *  in the app component view.
    **********************************************************/
 
+   // Called whenever the Search Field changes to update results that the user sees.
    public textChange() {
      this.updateResultsArr();
    }
@@ -190,7 +185,7 @@ export class AppComponent implements OnInit {
    * this must be called after postDataArray is modified to keep the
    * two variables synchronized.
    */
-  private syncFilterDataObject() {
+  public syncFilterDataObject() {
     const x = {};
     const y = this.postDataArray;
     let date, year, month, day;
@@ -233,22 +228,7 @@ export class AppComponent implements OnInit {
    * Functions that handle the display of the component.
    **********************************************************/
 
-  /**
-   * This function sets a tab visible or invisible.
-   * @param tabArg A number that dictates which tab to make visible.
-   */
-  private setTabVisibility(tabArg) {
-    let tabCount = Object.keys(this.tabVisibility).length;
-
-    while (tabCount > 0) {
-      this.tabVisibility[tabCount] = false;
-      tabCount--;
-    }
-
-    this.tabVisibility[tabArg] = true;
-  }
-
-  private getAllYears(formattedPostData) {
+  public getAllYears(formattedPostData) {
     const x = [];
 
     formattedPostData.forEach(v => {
@@ -319,8 +299,6 @@ export class AppComponent implements OnInit {
 
   public getFilteredData(year, month, day) {
     let matchLength;
-
-    console.log(this.filterSettings.searchField);
 
     return this.postDataArray.filter(v => {
       matchLength = v.content.toLocaleLowerCase().match(this.filterSettings.searchField.toLocaleLowerCase());

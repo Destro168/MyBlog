@@ -5,3 +5,14 @@ TODO:
 - Note Export Feature as text and CSV.
 - Expandable/Collapsable Sections on page.
 - Code Cleanup
+
+
+- Add light colors to posts based on date. (Maybe a colored icon.)
+- Add icons to the various buttons.
+
+- Update URLS for restful backend service with some provider.
+
+0.1.0
+* Finalized styling for new features.
+* Removed a small bit of outdated code.
+* Set all methods in component to public, because honestly private isn't necessary with the scale of this app. (Unnecessary overhead.)
