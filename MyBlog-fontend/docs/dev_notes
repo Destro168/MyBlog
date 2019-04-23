@@ -9,6 +9,7 @@ Design:
 - Expandable/Collapsable Sections on page.
 - Add light colored borders to posts based on date. (Maybe a colored icon.)
 - Add icons to the various buttons.
+- When a button or option is selected, fade the button out.
 
 Features:
 
@@ -17,10 +18,13 @@ Features:
     * Export/Import features.
 - Actually use 'handleError' in http.server.ts using angular 7 guidelines.
 
+- In new post section, make textarea submit when hitting the enter key, and let shift+enter create a new line. Also, make hitting submit return focus to textarea.
+
 Code Cleanup/Optimization:
 
 - Take advantage of interfaces throughout code.
 - Continually cleanup code.
+- Make formContent information into an object.
 
 ====================================
     SUPER FUTURE TODO... MAYBE:

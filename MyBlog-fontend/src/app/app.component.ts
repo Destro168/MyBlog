@@ -51,10 +51,12 @@ export class AppComponent implements OnInit {
 
   // Post data object. Must remain synchronized with postDataObject. Is dependent on postDataArray.
   public filteredPostDataObject = {};
-  public allYears = [];
 
   // An array of results for display.
   public resultsArr = [];
+
+  // Array containing pagination data.
+  paginationArray = [];
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
@@ -158,42 +160,37 @@ export class AppComponent implements OnInit {
     }
   }
 
-  public getPaginationIndexes() {
-    const arr = [];
-    let i = 0;
-
-    for (i = 0; i < Math.floor((this.filteredPostDataObjectSize - 1) / this.filterSettings.resultLimit) + 1; i++) {
-      arr.push(i);
-    }
-
-    return arr;
-  }
-
   /**********************************************************
    * Functions that manage post data, the content used
    *  in the app component view.
    **********************************************************/
 
-   // Called whenever the Search Field changes to update results that the user sees.
-   public textChange() {
-     this.updateResultsArr();
-   }
+  // Called whenever the Search Field changes to update results that the user sees.
+  public textChange() {
+    this.updateResultsArray();
+  }
+
+  // Set's page index to zero, usually called when user applies a filter option in the Post History section.
+  public setPageIndexZero() {
+    this.filterSettings.page_index = 0;
+  }
 
   /**
    * Function that sets postDataObject to values in postDataArray.
    * Unless a custom operation modifiers postDataArray directly,
    * this must be called after postDataArray is modified to keep the
    * two variables synchronized.
+   * Usually would be called after a 'GET'.
+   * --------
+   * Automatically updates results array, which updates pagination, through dependency chain logic.
    */
-  public syncFilterDataObject() {
+  public conertPostDataArrayToObject() {
     const x = {};
     const y = this.postDataArray;
     let date, year, month, day;
 
     const filterStartDate = this.getDateFromUserStr(this.filterSettings.date_start_str).getTime();
     const filterEndDate = this.getDateFromUserStr(this.filterSettings.date_end_str).getTime();
-
-    this.filteredPostDataObjectSize = 0;
 
     for (let i = 0; i < y.length; i++) {
       date = y[i].date;
@@ -217,38 +214,27 @@ export class AppComponent implements OnInit {
 
         x[year][month][day]++;
 
-        this.filteredPostDataObjectSize++;
       }
     }
 
     this.filteredPostDataObject = x;
+
+    // Update results array.
+    this.updateResultsArray();
   }
 
-  /**********************************************************
-   * Functions that handle the display of the component.
-   **********************************************************/
-
-  public getAllYears(formattedPostData) {
-    const x = [];
-
-    formattedPostData.forEach(v => {
-      if (x.indexOf(v.date.getFullYear()) === -1) {
-        x.push(v.date.getFullYear());
-      }
-    });
-
-    return x;
-  }
-
-  public filterYearOfData(formattedPostData, year) {
-    return formattedPostData.filter(v => v['year'] === year);
-  }
-
-  public updateResultsArr() {
+  /**
+   * Call this whenever the results array (what the user sees) changes.
+   * This will always automatically update pagination too, as pagination is
+   * dependent on the results array.
+   */
+  public updateResultsArray() {
     const temp = [];
-    const yearArr = this.allYears;
+    const yearArr = this.getAllYears(this.postDataArray);
     let monthArr;
     let dayArr;
+
+    this.filteredPostDataObjectSize = 0;
 
     // Store all data sorted by month and day.
     yearArr.forEach(e1 => {
@@ -260,6 +246,8 @@ export class AppComponent implements OnInit {
             header: e2.concat(' ').concat(this.getFormattedDay(e3)).concat(', ').concat(e1),
             postData: this.getFilteredData(e1, e2, e3)
           });
+
+          this.filteredPostDataObjectSize += temp[temp.length - 1].postData.length;
         });
       });
     });
@@ -287,7 +275,7 @@ export class AppComponent implements OnInit {
 
         savedPostNumber++;
 
-        if (savedPostNumber > this.filterSettings.resultLimit) {
+        if (savedPostNumber >= this.filterSettings.resultLimit) {
           savedPostNumber = 0;
           resultArrIndex++;
         }
@@ -295,20 +283,56 @@ export class AppComponent implements OnInit {
     }
 
     this.resultsArr = temp2;
+
+    this.updatePaginationIndexes();
+  }
+
+  public updatePaginationIndexes() {
+    const temp = [];
+
+    for (let i = 0; i < Math.ceil((this.filteredPostDataObjectSize) / this.filterSettings.resultLimit); i++) {
+      temp.push(i);
+    }
+
+    if (temp === []) {
+      temp.push(1);
+    }
+
+    this.paginationArray = temp;
+  }
+
+  /**********************************************************
+   * Functions that handle the display of the component.
+   **********************************************************/
+
+  public getAllYears(formattedPostData) {
+    const x = [];
+
+    formattedPostData.forEach(v => {
+      if (x.indexOf(v.date.getFullYear()) === -1) {
+        x.push(v.date.getFullYear());
+      }
+    });
+
+    return x;
+  }
+
+  public filterYearOfData(formattedPostData, year) {
+    return formattedPostData.filter(v => v['year'] === year);
   }
 
   public getFilteredData(year, month, day) {
     let matchLength;
 
     return this.postDataArray.filter(v => {
-      matchLength = v.content.toLocaleLowerCase().match(this.filterSettings.searchField.toLocaleLowerCase());
-      (matchLength) ? matchLength = matchLength.length : matchLength = 0;
+        matchLength = v.content.toLocaleLowerCase().match(this.filterSettings.searchField.toLocaleLowerCase());
+        (matchLength) ? matchLength = matchLength.length : matchLength = 0;
 
-      return G_MONTHS[v.date.getMonth()] === month &&
-        v.date.getFullYear() === year &&
-        v.date.getDate() === parseInt(day, 10) &&
-        (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category) &&
-        (this.filterSettings.searchField === '' || matchLength > 0);
+        return G_MONTHS[v.date.getMonth()] === month &&
+          v.date.getFullYear() === year &&
+          v.date.getDate() === parseInt(day, 10) &&
+          (this.filterSettings.category === this.G_FILTER_SETTING_ALL || v.category === this.filterSettings.category) &&
+          (this.filterSettings.searchField === '' || matchLength > 0);
       })
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .reverse();
@@ -363,7 +387,7 @@ export class AppComponent implements OnInit {
         dayData['date'] = dateFromUserStr;
 
         // Sync
-        this.syncFilterDataObject();
+        this.conertPostDataArrayToObject();
       });
   }
 
@@ -388,10 +412,7 @@ export class AppComponent implements OnInit {
         }
 
         // Update post data object to match new postDataArray.
-        this.syncFilterDataObject();
-
-        // Update results array.
-        this.updateResultsArr();
+        this.conertPostDataArrayToObject();
       });
   }
 
@@ -422,11 +443,8 @@ export class AppComponent implements OnInit {
         });
 
         // Synchronize post data object with post data array.
-        this.syncFilterDataObject();
-
-        this.allYears = this.getAllYears(this.postDataArray);
+        this.conertPostDataArrayToObject();
         this.formContent = '';
-        this.updateResultsArr();
       });
 
     return;
@@ -454,9 +472,8 @@ export class AppComponent implements OnInit {
         }));
 
         this.postDataArray = temp;
-        this.syncFilterDataObject();
-        this.allYears = this.getAllYears(this.postDataArray);
-        this.updateResultsArr();
+
+        this.conertPostDataArrayToObject();
       });
   }
 }
