@@ -40,20 +40,20 @@
   <hr>
 
   <!-- Filter options section. -->
-  <div id="filter_section">
-    <h2>Filter Options</h2>
-    <h5>Date Range (MM/DD/YYYY):
+  <div id="refresh_posts">
+    <h2>Refresh Posts</h2>
+    <h5>Get Posts Between Dates (MM/DD/YYYY):
       <input type="text" [(ngModel)]="filterSettings.date_start_str">
       <input type="text" [(ngModel)]="filterSettings.date_end_str">
     </h5>
-    <button class="btn btn-primary" (click)="syncFilterDataObject()">Filter</button>
+    <button class="btn btn-primary" (click)="setPageIndexZero(); doGetPostData();">Update</button>
     <br />
   </div>
 
   <hr>
 
   <!-- Mass operations section. -->
-  <div id="filter_section">
+  <div id="mass_operations">
     <h2>Mass Operations</h2>
     <button class="btn btn-primary" (click)="setAllPostsView()">View</button>
     <button class="btn btn-primary" (click)="setAllPostsEdit()">Edit</button>
