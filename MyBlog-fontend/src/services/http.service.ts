@@ -23,7 +23,7 @@ const G_GET_BACKEND_URL = () => {
 
   (matchLength) ? length = matchLength.length : length = 0;
 
-  return (length > 0) ? 'http://localhost:3000/api/posts' : 'https://the-tech-noob-blog.glitch.me/api/posts';
+  return (length > 0) ? 'http://localhost:3000/api/posts' : 'https://technoob.glitch.me/api/posts';
 };
 
 

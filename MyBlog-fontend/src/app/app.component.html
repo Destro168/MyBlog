@@ -110,6 +110,7 @@
       <!-- Search Field -->
       <input id="search_field" type="text" [(ngModel)]="filterSettings.searchField" placeholder="Search Here"
         (ngModelChange)="textChange()">
+
     </div>
 
     <div *ngFor="let result of resultsArr[filterSettings.page_index]">
@@ -121,7 +122,7 @@
           <span *ngIf="result.postData['displayMode'] == 'view'" (click)='result.postData["displayMode"] = "edit"'>
             <h5 class="card-title">{{ getFormattedTime(result.postData['date']) }} in
               {{ getFormattedCategory(result.postData['category']) }} on {{result.header}}</h5>
-            <p class="card-text">{{ result.postData['content'] }}</p>
+            <p class="card-text">{{result.postData['content']}}</p>
           </span>
 
           <!-- Edit Mode -->
@@ -200,11 +201,11 @@
   <!-- Footer section.-->
   <div id="footer">
     <h2>Explore My Work</h2>
-    <button class="btn btn-primary">LinkedIn</button>
-    <button class="btn btn-primary">Portfolio</button>
-    <button class="btn btn-primary">Github</button>
-    <button class="btn btn-primary">FCC</button>
-    <button class="btn btn-primary">CodeSignal</button>
+    <button class="btn btn-primary btn-footer">LinkedIn</button>
+    <button class="btn btn-primary btn-footer">Portfolio</button>
+    <button class="btn btn-primary btn-footer">Github</button>
+    <button class="btn btn-primary btn-footer">FCC</button>
+    <button class="btn btn-primary btn-footer">CodeSignal</button>
   </div>
 
   <hr>

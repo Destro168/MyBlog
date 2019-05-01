@@ -17,8 +17,8 @@ Features:
     * Mass delete capability with options.
     * Export/Import features.
 - Actually use 'handleError' in http.server.ts using angular 7 guidelines.
-
 - In new post section, make textarea submit when hitting the enter key, and let shift+enter create a new line. Also, make hitting submit return focus to textarea.
+- Ability to manage categories. (Probably a fancy list with ability the ability to add a new one or click a button to remove).
 
 Code Cleanup/Optimization:
 
@@ -30,5 +30,7 @@ Code Cleanup/Optimization:
     SUPER FUTURE TODO... MAYBE:
 ====================================
 
-- Add business model to make money?
+- Break certain parts of page up into different tabs that user can access via nav bar. (Like, the about me section).
+
+- Add business model to make money? (Need to add mention of support.)
 - Add real-time synchronization of data to all connected clients. (Too data heavy maybe?)

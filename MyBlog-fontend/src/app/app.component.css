@@ -33,10 +33,19 @@ button {
 
 #post-container-controls {
   display: flex;
-  margin-bottom: 10px;
-  height: 38px;
+  flex-wrap: wrap;
 }
 
 #search_field {
-  flex-basis: 400px
+  flex-basis: 400px;
+  height: 38px;
+  margin-bottom: 10px;
+}
+
+p {
+  white-space: pre-wrap;
+}
+
+.btn-footer {
+  margin-bottom: 10px;
 }

@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   // The text stored in the new post text area.
   // TODO, MAKE INTO OBJECT.
   public formContent = '';
-  public formCategory = this.G_CATEGORY_ARRAY[0];
+  public formCategory = 'Work';
 
   // Array of post data. Must remain synchronized with postDataObject. postDataObject depends on this variable.
   public postDataArray = [];
