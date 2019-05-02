@@ -81,7 +81,6 @@ export class AppComponent implements OnInit {
   public getAuthentication() {
     // First, check if the user is logged in.
     this.httpService.doAuthCheck().subscribe(v => {
-      console.log(v);
       if (v.message === 'true') {
         this.userLoggedIn = true;
         this.doGetPostData();

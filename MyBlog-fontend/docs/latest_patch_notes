@@ -1,4 +1,11 @@
-0.2.1
-* Made app have a registration/login interface and a logged in interface.
-* Made sure all authentication mechanisms are working as intended.
-* Disabled registration temporarily, because the notes are meant to be private from everybody except me until I have view permissions setup properly.
+0.2.2
+* Small dev notes change to add push URL to the file. (No more going to github for this url...)
+* Removed the result of authentication from console.log.
+
+
+
+
+--------------------------------------------------------------------
+PUSH URL:
+https://github.com/Destro168/MyBlog.git
+--------------------------------------------------------------------
