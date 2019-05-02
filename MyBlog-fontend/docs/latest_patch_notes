@@ -1,11 +1,14 @@
-0.2.2
+0.2.2.1
 * Small dev notes change to add push URL to the file. (No more going to github for this url...)
 * Removed the result of authentication from console.log.
-
+* Added Blog URL too.
 
 
 
 --------------------------------------------------------------------
 PUSH URL:
 https://github.com/Destro168/MyBlog.git
+
+Blog URL:
+https://github.com/Destro168/MyBlog
 --------------------------------------------------------------------
