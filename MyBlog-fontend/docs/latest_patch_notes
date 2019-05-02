@@ -1,6 +1,2 @@
-0.1.5
-* Fixed linebreaks in view mode not working.
-* Made the Post History controls responsive.
-* Changed default post category to work, since that is primarily what this website will be used for.
-* Added bottom margin to buttons in 'Explore My Work' section.
-* Changed glitch project name, updated code to use it too.
+0.2.0
+* Added authentication using passport to the code! Took forever and was overly difficult for no reason. But, it's done! Yay!

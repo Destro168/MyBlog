@@ -11,8 +11,6 @@ const G_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-
-
 const getUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear();
 const getLongUserStrFromDate = (date) => date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '/' +
   date.getHours() + '/' + date.getMinutes() + '/' + date.getSeconds();
@@ -26,7 +24,7 @@ export class AppComponent implements OnInit {
   // Constructor -> Activates service httpService.
   constructor(public httpService: HttpService) {}
 
-  public G_CATEGORY_ARRAY = ['General', 'Roleplaying', 'Personal', 'Work', 'Programming'];
+  public G_CATEGORY_ARRAY = ['General', 'Work', 'Roleplaying', 'Personal', 'Programming'];
   public G_FILTER_SETTING_ALL = 'All';
 
   // TODO CATEGORY:  Add a category field.
@@ -56,7 +54,19 @@ export class AppComponent implements OnInit {
   public resultsArr = [];
 
   // Array containing pagination data.
-  paginationArray = [];
+  public paginationArray = [];
+
+  public registerForm = {
+    username: '',
+    password: '',
+  };
+
+  public loginForm = {
+    username: '',
+    password: '',
+  };
+
+  public session = '';
 
   /**
    * Lifecycle method that retrieves all post content after DOM is rendered and displays it using methods
@@ -450,10 +460,60 @@ export class AppComponent implements OnInit {
     return;
   }
 
+  public doPostOnRegister() {
+    if (this.registerForm.username === '') {
+      console.log('Bad form content');
+      return;
+    }
+
+    if (this.registerForm.password === '') {
+      console.log('Bad password.');
+      return;
+    }
+
+    this.httpService.doRegister(this.registerForm).subscribe(v => {
+      console.log('REGISTER SUCCESS: ', v);
+    });
+  }
+
+  /**
+   * Perform a POST operation to submit a login request.
+   */
+  public doPostOnLogin() {
+    if (this.loginForm.username === '') {
+      console.log('Bad form content');
+      return;
+    }
+
+    if (this.loginForm.password === '') {
+      console.log('Bad password.');
+      return;
+    }
+
+    this.httpService.doLogin(this.loginForm).subscribe(v => {
+      console.log('LOGIN SUCCESS: ', v);
+      this.doGetPostData();
+    });
+  }
+
+  public doPostOnLogout() {
+    this.httpService.doLogout().subscribe(v => {
+      console.log('Successfully logged out');
+
+      // Clear post data array.
+      this.postDataArray = [];
+      this.filteredPostDataObject = {};
+      this.resultsArr = [];
+      this.paginationArray = [];
+    });
+  }
+
   /**
    * Perform a GET operation to get all posts using filter settings to limit results.
    */
   public doGetPostData() {
+    console.log('a');
+
     this.httpService.getPosts(
         this.getDateFromUserStr(this.filterSettings.date_start_str),
         this.getDateFromUserStr(this.filterSettings.date_end_str),

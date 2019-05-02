@@ -3,7 +3,15 @@
 =============
 
 Priority:
-- Add user accounts + authentication for securtiy reasons.
+
+- Add actual home page to login/register.
+- Break back-end into multiple different files for modularity.
+- Somehow get back-end to return real messages from passport.
+- Implement bcrypt to encrypt passwords.
+
+====================================
+    FUTURE TODO:
+====================================
 
 Design:
 - Expandable/Collapsable Sections on page.

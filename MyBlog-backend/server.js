@@ -1,43 +1,158 @@
 'use strict';
 
-// Store middleware into vars for initialization. Then, initialize them all.
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const bodyParser = require('body-parser');
+/**
+ * Server.js tutorial:
+ * http://www.passportjs.org/docs/authenticate/
+ * https://scotch.io/tutorials/easy-node-authentication-setup-and-local
+ */
 
+// Begin to initialize middleware.
+const express = require('express');
 const app = express();
 const port = 3000;
 
+
+// Load cookieparser.
+const cookieparser = require('cookie-parser');
+app.use(cookieparser("cats"));
+
+// User cors.
+const cors = require('cors');
+app.use(cors());
+
+// Load .env file using dotenv node module.
+const dotenv = require('dotenv');
 dotenv.config();
 
+// Use bodyparser to process form data.
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
-app.use(cors());
-
+// Setup mongoose.
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI);
 
-// Create schema template obj.
-var postTemplateObj = {
-	author: {
+/** ALL OF THE FOLLOWING IS FOR PASSPORT */
+
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
+// Create user template object.
+var userTemplateObj = {
+	username: {
 		type: String,
-		default: "Donald Abdullah-Robinson"
+		unique: true,
+		required: true
 	},
-	content: String,
-	category: String,
-	created_on: {
-		type: Date,
-		default: Date.now
+	password: {
+		type: String,
+		required: true
+	},
+	userGroup: {
+		type: String,
+		default: 'user'
 	}
 }
 
 // Create schema and model.
-var postSchema = new mongoose.Schema(postTemplateObj);
-var postModel = mongoose.model('Thread', postSchema);
+var userSchema = new mongoose.Schema(userTemplateObj);
+var User = mongoose.model('User', userSchema);
+
+var cookieSession = require('cookie-session');
+
+app.use(express.static("public"));
+app.use(cookieSession({
+	name: 'dontechcookie',
+	secret: 'cats'
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, done) {
+	done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+	User.findById(id, function (err, user) {
+		done(err, user);
+	});
+});
+
+passport.use(new LocalStrategy(
+	function (username, password, done) {
+		User.findOne({
+			username: username
+		}, function (err, user) {
+			if (err) {
+				return done(err);
+			}
+			if (!user) {
+				return done(null, false, {
+					message: 'Incorrect username.'
+				});
+			}
+
+			if (!(user.password === password)) {
+				return done(null, false, {
+					message: 'Incorrect password.'
+				});
+			}
+
+			return done(null, user, {
+				message: 'successfully authenticated'
+			});
+		});
+	}
+));
+
+// Passport login route.
+app.post('/login', function (req, res, next) {
+	passport.authenticate('local', function (err, user, info) {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			return res.redirect('/login');
+		}
+		req.logIn(user, function (err) {
+			if (err) {
+				return next(err);
+			}
+			
+			return res.json(user);
+		});
+	})(req, res, next);
+});
+
+// Passport logout route.
+app.get('/logout', function (req, res) {
+	req.logout();
+	res.status(200).json({message: "Successfully logged you out."});
+});
+
+app.post('/register', (req, res) => {
+	var username = req.body.username;
+	var password = req.body.password;
+
+	var user = new User({
+		username: username,
+		password: password
+	});
+
+	user.save((err, data) => {
+		if (err) {
+			res.status(400).send(err);
+		}
+
+		res.status(200).json(data);
+	});
+});
+
+/** ALL OF THE FOLLOWING IS FOR THE REST OF THE APP */
 
 // Default get used just to test service.
 app.get('/', (req, res) => {
@@ -56,9 +171,54 @@ app.get('/:resource', function (req, res) {
 	}
 });
 
+/**
+ * Main logic used for posts.
+ */
+
+// Create schema template obj.
+var postTemplateObj = {
+	author: {
+		type: String,
+		default: "Donald Abdullah-Robinson"
+	},
+	content: String,
+	category: String,
+	created_on: {
+		type: Date,
+		default: Date.now
+	},
+	hidden: {
+		type: Boolean,
+		default: false
+	}
+}
+
+var viewCategories = {
+	user: ['General', 'Work', 'Roleplaying', 'Personal', 'Programming'],
+	admin: ['General', 'Work', 'Roleplaying', 'Personal', 'Programming', 'Admin_Diary']
+}
+
+// Create schema and model.
+var postSchema = new mongoose.Schema(postTemplateObj);
+var postModel = mongoose.model('Thread', postSchema);
+
+// Routing
+
+// Make sure user is authenticated.
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+
+	res.status(200).json([]);
+	return;
+}
+
+
+// Get Posts route.
 app.route('/api/posts')
-	// Get a post's data object.
-	.get(function (req, res) {
+
+	.get(ensureAuthenticated, (req, res) => {
 		const G_ALL_CATEGORY_STR = 'All';
 		let categoryParam = req.query.category;
 		let date_start = req.query.date_start;
@@ -100,8 +260,9 @@ app.route('/api/posts')
 		query.exec((err, data) => {
 			err ? res.status(400).send(err) : res.status(200).json(data);
 		});
-	})
+	});
 
+app.route('/api/posts')
 	// Posts some content.
 	.post(function (req, res) {
 		var post = new postModel({

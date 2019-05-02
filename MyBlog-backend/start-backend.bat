@@ -1,4 +1,3 @@
 @echo off
-title Blog - Backend Node Server
-cmd.exe /K "cd %CD% & node server.js"
-
+TITLE BACKEND
+node server.js

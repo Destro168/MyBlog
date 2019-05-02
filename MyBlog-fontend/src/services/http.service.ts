@@ -3,42 +3,45 @@ import {
 } from '@angular/core';
 import {
   HttpClient,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpHeaders
 } from '@angular/common/http';
 
-import {
-  catchError
-} from 'rxjs/operators';
 import {
   throwError
 } from 'rxjs';
 
+import {
+  catchError
+} from 'rxjs/operators';
 
 /**
  * This function returns the backend url based on the app's load location (local or glitch).
  */
-const G_GET_BACKEND_URL = () => {
+const G_GET_BACKEND_PREFIX = () => {
   const matchLength = window.location.href.match('localhost');
   let length: number;
 
-  (matchLength) ? length = matchLength.length : length = 0;
+  (matchLength) ? (length = matchLength.length) : length = 0;
 
-  return (length > 0) ? 'http://localhost:3000/api/posts' : 'https://technoob.glitch.me/api/posts';
+  return (length > 0) ? 'http://localhost:3000' : 'https://technoob.glitch.me';
 };
-
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-  configUrl = G_GET_BACKEND_URL();
+  backendPrefix = G_GET_BACKEND_PREFIX();
+  configUrl = this.backendPrefix + '/api/posts';
+  registerUrl = this.backendPrefix + '/register';
+  loginUrl = this.backendPrefix + '/login';
+  logoutUrl = this.backendPrefix + '/logout';
+
+  G_OPTIONS = {
+    withCredentials: true
+  };
 
   constructor(private http: HttpClient) {}
-
-  getPosts(date_start, date_end, category) {
-    const finalUrl = this.configUrl + '?date_start=' + date_start + '&date_end=' + date_end + '&category=' + category;
-    return this.http.get(finalUrl);
-  }
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
@@ -56,12 +59,39 @@ export class HttpService {
       'Something bad happened; please try again later.');
   }
 
+  getPosts(date_start, date_end, category) {
+    const finalUrl = this.configUrl + '?date_start=' + date_start + '&date_end=' + date_end + '&category=' + category;
+    return this.http.get(finalUrl, this.G_OPTIONS);
+  }
+
   /**
    * Performs post operation using content object.
    * @param content Object containing a post to save.
    */
   doPost(content) {
-    return this.http.post < any > (this.configUrl, content);
+    return this.http.post < any > (this.configUrl, content, this.G_OPTIONS);
+  }
+
+  doRegister(registrationCredentials) {
+    const x = this.http.post < any > (this.registerUrl, registrationCredentials, this.G_OPTIONS);
+
+    console.log(x);
+
+    return x;
+  }
+
+  doLogin(loginCredentials) {
+    return this.http.post < any > (this.loginUrl, loginCredentials, this.G_OPTIONS)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  doLogout() {
+    return this.http.post < any > (this.logoutUrl, this.G_OPTIONS)
+    .pipe(
+      catchError(this.handleError)
+    );
   }
 
   /**
@@ -69,7 +99,7 @@ export class HttpService {
    * @param postDataObject Object with keys id (a mongoDB id reference) and postDataObject (content to set key id to)
    */
   doPut(id, postObject) {
-    return this.http.put(this.configUrl + '/' + id, postObject);
+    return this.http.put(this.configUrl + '/' + id, postObject, this.G_OPTIONS);
   }
 
   /**
@@ -77,6 +107,6 @@ export class HttpService {
    * @param content An object containing an id.
    */
   doDelete(id) {
-    return this.http.delete(this.configUrl + '/' + id);
+    return this.http.delete(this.configUrl + '/' + id, this.G_OPTIONS);
   }
 }

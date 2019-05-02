@@ -6,30 +6,79 @@
 
   <hr>
 
+  <!-- Registration -->
+  <form (ngSubmit)="doPostOnRegister()" #postForm="ngForm">
+    <h3>Register</h3>
+    <div>
+      <label>Username:</label>
+      <input type="text" name="username" [(ngModel)]="registerForm.username" />
+    </div>
+
+    <div>
+      <label>Password:</label>
+      <input type="password" name="password" [(ngModel)]="registerForm.password" />
+    </div>
+
+    <!-- Submit button. -->
+    <div>
+      <button type="submit" class="btn btn-success">Submit</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <!-- Login -->
+  <form (ngSubmit)="doPostOnLogin()" #postForm="ngForm">
+    <h3>Login</h3>
+    <div>
+      <label>Username:</label>
+      <input type="text" name="username" [(ngModel)]="loginForm.username" />
+    </div>
+
+    <div>
+      <label>Password:</label>
+      <input type="password" name="password" [(ngModel)]="loginForm.password" />
+    </div>
+
+    <!-- Submit button. -->
+    <div>
+      <button type="submit" class="btn btn-success">Submit</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <!-- Logout button -->
+  <div>
+    <button type="submit" class="btn btn-success" (click)="doPostOnLogout()">Logout</button>
+  </div>
+
+  <hr>
+
   <!-- Section for creating a new blog post. -->
   <div id="create_post">
 
     <!-- Category Selection // TODO => Make a drop-down component... -->
     <div class="new-post-category-controls">
-        <h2 style="margin-right: 8px;">Create New Post in</h2>
-        <div class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            {{formCategory}}
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <span *ngFor="let item of G_CATEGORY_ARRAY">
-              <a class="dropdown-item" (click)="formCategory = item">{{item}}</a>
-            </span>
-          </div>
+      <h2 style="margin-right: 8px;">Create New Post in</h2>
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          {{formCategory}}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <span *ngFor="let item of G_CATEGORY_ARRAY">
+            <a class="dropdown-item" (click)="formCategory = item">{{item}}</a>
+          </span>
         </div>
       </div>
+    </div>
 
     <form (ngSubmit)="doPostOnSubmit()" #postForm="ngForm">
       <div>
         <!-- Text area for new post -->
-        <textarea class="post_edit_textarea" name="content"
-          [(ngModel)]="formContent" placeholder="Enter Content Here:" required></textarea><br />
+        <textarea class="post_edit_textarea" name="content" [(ngModel)]="formContent" placeholder="Enter Content Here:"
+          required></textarea><br />
 
         <!-- Submit button. -->
         <button type="submit" class="btn btn-success" [disabled]="!postForm.form.valid">Submit</button>
@@ -91,7 +140,8 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <span *ngFor="let item of getFilterList()">
-            <a class="dropdown-item" (click)="filterSettings.category = item; setPageIndexZero(); updateResultsArray();">{{item}}</a>
+            <a class="dropdown-item"
+              (click)="filterSettings.category = item; setPageIndexZero(); updateResultsArray();">{{item}}</a>
           </span>
         </div>
       </div>
