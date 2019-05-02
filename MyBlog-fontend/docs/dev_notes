@@ -4,9 +4,7 @@
 
 Priority:
 
-- Add actual home page to login/register.
-- Break back-end into multiple different files for modularity.
-- Somehow get back-end to return real messages from passport.
+- Setup view permissions for different categories of posts based on user group.
 - Implement bcrypt to encrypt passwords.
 
 ====================================
@@ -33,6 +31,8 @@ Code Cleanup/Optimization:
 - Take advantage of interfaces throughout code.
 - Continually cleanup code.
 - Make formContent information into an object.
+- Break back-end into multiple different files for modularity.
+- Somehow get back-end to return real messages from passport.
 
 ====================================
     SUPER FUTURE TODO... MAYBE:

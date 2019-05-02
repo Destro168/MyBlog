@@ -1,2 +1,4 @@
-0.2.0
-* Added authentication using passport to the code! Took forever and was overly difficult for no reason. But, it's done! Yay!
+0.2.1
+* Made app have a registration/login interface and a logged in interface.
+* Made sure all authentication mechanisms are working as intended.
+* Disabled registration temporarily, because the notes are meant to be private from everybody except me until I have view permissions setup properly.

@@ -122,7 +122,7 @@ app.post('/login', function (req, res, next) {
 			if (err) {
 				return next(err);
 			}
-			
+
 			return res.json(user);
 		});
 	})(req, res, next);
@@ -134,6 +134,7 @@ app.get('/logout', function (req, res) {
 	res.status(200).json({message: "Successfully logged you out."});
 });
 
+/* - Removed registration, because this app doesn't let new users register. Yeappp.
 app.post('/register', (req, res) => {
 	var username = req.body.username;
 	var password = req.body.password;
@@ -146,10 +147,23 @@ app.post('/register', (req, res) => {
 	user.save((err, data) => {
 		if (err) {
 			res.status(400).send(err);
+			return;
 		}
 
 		res.status(200).json(data);
+		return;
 	});
+});
+*/
+
+// Special route to check if user is authenticated
+app.get('/authCheck', function(req, res) {
+	if (req.isAuthenticated() == true) {
+		res.status(200).send({message: "true"});
+	}
+	else {
+		res.status(200).send({message: "false"});
+	}
 });
 
 /** ALL OF THE FOLLOWING IS FOR THE REST OF THE APP */

@@ -24,6 +24,8 @@ export class AppComponent implements OnInit {
   // Constructor -> Activates service httpService.
   constructor(public httpService: HttpService) {}
 
+  public userLoggedIn = false;
+
   public G_CATEGORY_ARRAY = ['General', 'Work', 'Roleplaying', 'Personal', 'Programming'];
   public G_FILTER_SETTING_ALL = 'All';
 
@@ -73,7 +75,18 @@ export class AppComponent implements OnInit {
    * defined in this component class.
    */
   ngOnInit() {
-    this.doGetPostData();
+    this.getAuthentication();
+  }
+
+  public getAuthentication() {
+    // First, check if the user is logged in.
+    this.httpService.doAuthCheck().subscribe(v => {
+      console.log(v);
+      if (v.message === 'true') {
+        this.userLoggedIn = true;
+        this.doGetPostData();
+      }
+    });
   }
 
   /**********************************************************
@@ -248,7 +261,7 @@ export class AppComponent implements OnInit {
 
     // Store all data sorted by month and day.
     yearArr.forEach(e1 => {
-      monthArr = this.getKeys(this.filteredPostDataObject[e1]);
+      monthArr = this.getReversedKeys(this.filteredPostDataObject[e1]);
       monthArr.forEach(e2 => {
         dayArr = this.getReversedKeys(this.filteredPostDataObject[e1][e2]);
         dayArr.forEach(e3 => {
@@ -472,7 +485,16 @@ export class AppComponent implements OnInit {
     }
 
     this.httpService.doRegister(this.registerForm).subscribe(v => {
-      console.log('REGISTER SUCCESS: ', v);
+      // Log user in.
+      this.loginForm = this.registerForm;
+
+      this.doPostOnLogin();
+
+      // Clear registration form data.
+      this.registerForm = {
+        username: '',
+        password: '',
+      };
     });
   }
 
@@ -491,20 +513,24 @@ export class AppComponent implements OnInit {
     }
 
     this.httpService.doLogin(this.loginForm).subscribe(v => {
-      console.log('LOGIN SUCCESS: ', v);
+      this.loginForm = {
+        username: '',
+        password: '',
+      };
+
       this.doGetPostData();
+      this.userLoggedIn = true;
     });
   }
 
   public doPostOnLogout() {
     this.httpService.doLogout().subscribe(v => {
-      console.log('Successfully logged out');
-
       // Clear post data array.
       this.postDataArray = [];
       this.filteredPostDataObject = {};
       this.resultsArr = [];
       this.paginationArray = [];
+      this.userLoggedIn = false;
     });
   }
 
@@ -512,8 +538,6 @@ export class AppComponent implements OnInit {
    * Perform a GET operation to get all posts using filter settings to limit results.
    */
   public doGetPostData() {
-    console.log('a');
-
     this.httpService.getPosts(
         this.getDateFromUserStr(this.filterSettings.date_start_str),
         this.getDateFromUserStr(this.filterSettings.date_end_str),

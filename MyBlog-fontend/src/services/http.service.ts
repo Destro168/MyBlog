@@ -36,6 +36,7 @@ export class HttpService {
   registerUrl = this.backendPrefix + '/register';
   loginUrl = this.backendPrefix + '/login';
   logoutUrl = this.backendPrefix + '/logout';
+  authCheckUrl = this.backendPrefix + '/authCheck';
 
   G_OPTIONS = {
     withCredentials: true
@@ -73,11 +74,7 @@ export class HttpService {
   }
 
   doRegister(registrationCredentials) {
-    const x = this.http.post < any > (this.registerUrl, registrationCredentials, this.G_OPTIONS);
-
-    console.log(x);
-
-    return x;
+    return this.http.post < any > (this.registerUrl, registrationCredentials, this.G_OPTIONS);
   }
 
   doLogin(loginCredentials) {
@@ -88,10 +85,17 @@ export class HttpService {
   }
 
   doLogout() {
-    return this.http.post < any > (this.logoutUrl, this.G_OPTIONS)
-    .pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get < any > (this.logoutUrl, this.G_OPTIONS)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  doAuthCheck() {
+    return this.http.get < any > (this.authCheckUrl, this.G_OPTIONS)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   /**
