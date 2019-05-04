@@ -1,9 +1,10 @@
-0.2.2.1
-* Small dev notes change to add push URL to the file. (No more going to github for this url...)
-* Removed the result of authentication from console.log.
-* Added Blog URL too.
-
-
+0.2.3
+* Fixed misuse of category parameter in GET operation for posts.
+* Added authentication to rest of back-end routes.
+* Made it so that there are now guest (unused), user and admin groups that can see different categories of content on the web page.
+* Made it so that available categories to post/sort by is based on those groups.
+* Author on posts is now set to one's user id, rather than always defaulting to Donald Abdullah-Robinson (my name).
+* When you make a post to a category, the filter will now change to that category to make it visibile.
 
 --------------------------------------------------------------------
 PUSH URL:

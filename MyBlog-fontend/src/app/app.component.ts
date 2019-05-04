@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
 
   public userLoggedIn = false;
 
-  public G_CATEGORY_ARRAY = ['General', 'Work', 'Roleplaying', 'Personal', 'Programming'];
+  public G_CATEGORY_ARRAY = [];
   public G_FILTER_SETTING_ALL = 'All';
 
   // TODO CATEGORY:  Add a category field.
@@ -86,6 +86,12 @@ export class AppComponent implements OnInit {
         this.doGetPostData();
       }
     });
+  }
+
+  public updateFilterCategory(item: string) {
+    this.filterSettings.category = item;
+    this.setPageIndexZero();
+    this.updateResultsArray();
   }
 
   /**********************************************************
@@ -348,7 +354,7 @@ export class AppComponent implements OnInit {
 
     return this.postDataArray.filter(v => {
         matchLength = v.content.toLocaleLowerCase().match(this.filterSettings.searchField.toLocaleLowerCase());
-        (matchLength) ? matchLength = matchLength.length : matchLength = 0;
+        (matchLength) ? (matchLength = matchLength.length) : matchLength = 0;
 
         return G_MONTHS[v.date.getMonth()] === month &&
           v.date.getFullYear() === year &&
@@ -457,6 +463,7 @@ export class AppComponent implements OnInit {
 
         this.postDataArray.push({
           _id: x['_id'],
+          author: x['author'],
           date: postDate,
           date_str: getLongUserStrFromDate(postDate),
           category: x['category'],
@@ -467,6 +474,9 @@ export class AppComponent implements OnInit {
         // Synchronize post data object with post data array.
         this.conertPostDataArrayToObject();
         this.formContent = '';
+
+        // Update the filter category to show what was just posted.
+        this.updateFilterCategory(x['category']);
       });
 
     return;
@@ -530,7 +540,26 @@ export class AppComponent implements OnInit {
       this.resultsArr = [];
       this.paginationArray = [];
       this.userLoggedIn = false;
+      this.G_CATEGORY_ARRAY = [];
     });
+  }
+
+  public setCategoryArray() {
+    // Variable initialization.
+    const adminCategories = ['Roleplaying', 'Personal', 'Admin'];
+
+    // By default, we want to show these three categories.
+    this.G_CATEGORY_ARRAY = [
+      'General', 'Work', 'Programming'
+    ];
+
+    // Look for an admin category inside of postDataArray. If one is found, add all admin categories.
+    for (let i = 0; i < this.postDataArray.length; i++) {
+      if (adminCategories.indexOf(this.postDataArray[i]['category']) !== -1) {
+        this.G_CATEGORY_ARRAY = this.G_CATEGORY_ARRAY.concat(adminCategories);
+        return;
+      }
+    }
   }
 
   /**
@@ -539,14 +568,14 @@ export class AppComponent implements OnInit {
   public doGetPostData() {
     this.httpService.getPosts(
         this.getDateFromUserStr(this.filterSettings.date_start_str),
-        this.getDateFromUserStr(this.filterSettings.date_end_str),
-        this.filterSettings.category
+        this.getDateFromUserStr(this.filterSettings.date_end_str)
       )
       .subscribe((data: []) => {
         const temp = [];
 
         data.forEach(v => temp.push({
           _id: v['_id'],
+          author: v['author'],
           date: new Date(v['created_on']),
           date_str: getLongUserStrFromDate(new Date(v['created_on'])),
           category: v['category'],
@@ -557,6 +586,12 @@ export class AppComponent implements OnInit {
         this.postDataArray = temp;
 
         this.conertPostDataArrayToObject();
+
+        // Set up our category array based on post data.
+        this.setCategoryArray();
+
+        // Set default filter category to work.
+        this.updateFilterCategory('Work');
       });
   }
 }

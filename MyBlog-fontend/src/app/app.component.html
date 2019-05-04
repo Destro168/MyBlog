@@ -11,7 +11,7 @@
 
     <!-- Registration -->
     <form (ngSubmit)="doPostOnRegister()" #postForm="ngForm">
-      <h3>Registration (Currently Disabled)</h3>
+      <h3>Registration</h3>
       <div>
         <label>Username:</label>
         <input type="text" name="username" [(ngModel)]="registerForm.username" />
@@ -138,7 +138,7 @@
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <span *ngFor="let item of getFilterList()">
               <a class="dropdown-item"
-                (click)="filterSettings.category = item; setPageIndexZero(); updateResultsArray();">{{item}}</a>
+                (click)="updateFilterCategory(item)">{{item}}</a>
             </span>
           </div>
         </div>
@@ -168,7 +168,8 @@
             <!-- View Mode -->
             <span *ngIf="result.postData['displayMode'] == 'view'" (click)='result.postData["displayMode"] = "edit"'>
               <h5 class="card-title">{{ getFormattedTime(result.postData['date']) }} in
-                {{ getFormattedCategory(result.postData['category']) }} on {{result.header}}</h5>
+                {{ getFormattedCategory(result.postData['category']) }} on {{result.header}}
+                by {{result.postData['author']}} </h5>
               <p class="card-text">{{result.postData['content']}}</p>
             </span>
 

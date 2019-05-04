@@ -4,8 +4,7 @@
 
 Priority:
 
-- Setup view permissions for different categories of posts based on user group.
-- Implement bcrypt to encrypt passwords.
+- Make it so that only admin's can delete/modify posts globally. Users can only delete/modify their own posts.
 
 ====================================
     FUTURE TODO:

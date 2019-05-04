@@ -60,8 +60,8 @@ export class HttpService {
       'Something bad happened; please try again later.');
   }
 
-  getPosts(date_start, date_end, category) {
-    const finalUrl = this.configUrl + '?date_start=' + date_start + '&date_end=' + date_end + '&category=' + category;
+  getPosts(date_start, date_end) {
+    const finalUrl = this.configUrl + '?date_start=' + date_start + '&date_end=' + date_end;
     return this.http.get(finalUrl, this.G_OPTIONS);
   }
 
