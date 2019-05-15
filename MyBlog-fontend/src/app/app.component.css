@@ -49,3 +49,14 @@ p {
 .btn-footer {
   margin-bottom: 10px;
 }
+
+.accountLabel {
+  margin-right: 10px;
+  color: rgb(58,67,75);
+  font-size: 24px;
+}
+
+#logged_out_content {
+  display: flex;
+  margin-bottom: -40px;
+}

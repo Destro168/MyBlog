@@ -114,18 +114,22 @@ passport.use(new LocalStrategy(
 // Passport login route.
 app.post('/login', function (req, res, next) {
 	passport.authenticate('local', function (err, user, info) {
+		console.log(err, user);
+
 		if (err) {
-			return next(err);
+			return res.status(400).json(err);
 		}
 		if (!user) {
-			return res.redirect('/login');
+			return res.status(400).json(err);
 		}
 		req.logIn(user, function (err) {
+			console.log("2: " + err);
+			
 			if (err) {
-				return next(err);
+				return res.status(400).json(err);
 			}
 
-			return res.json(user);
+			return res.status(200).json(user);
 		});
 	})(req, res, next);
 });
