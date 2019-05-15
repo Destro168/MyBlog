@@ -114,17 +114,13 @@ passport.use(new LocalStrategy(
 // Passport login route.
 app.post('/login', function (req, res, next) {
 	passport.authenticate('local', function (err, user, info) {
-		console.log(err, user);
-
 		if (err) {
 			return res.status(400).json(err);
 		}
 		if (!user) {
 			return res.status(400).json(err);
 		}
-		req.logIn(user, function (err) {
-			console.log("2: " + err);
-			
+		req.logIn(user, function (err) {			
 			if (err) {
 				return res.status(400).json(err);
 			}

@@ -1,11 +1,4 @@
-0.2.3 (cont from last time, forgot to note)
-
-* Now using bcrypt for password protection. (No more plaintext passwords).
-
-0.2.4
-
-* Updated front-end register/Sign In display on front page.
-* Updated backend to at least provide errors when you fail to login.
+0.2.5
 
 --------------------------------------------------------------------
 PUSH URL:
